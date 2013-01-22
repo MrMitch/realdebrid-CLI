@@ -1,31 +1,33 @@
 #!/bin/bash
 
-if [ -n "$1" ] 
+if [ -n "$1" ]
 then
-    HTML=`curl -s $1`;
-    URL=`echo $HTML | grep -m 1 -o "http://s[0-9]*\.real-debrid\.com/dl/[a-zA-Z0-9]*/video\.flv" | head -1`;
+    TMP="/tmp/rdsd.html"
+    wget -q $1 -O $TMP
+    URL=`grep -m 1 -o "http://s[0-9]*\.real-debrid\.com/dl/[a-zA-Z0-9]*/video\.flv" $TMP`
     
     if [ -n "$URL" ] 
     then
-        echo "URL: "$URL;
+        echo "URL: "$URL
 
         if [ -n "$2" ]
         then
-            FILE=$2;
+            FILE=$2
         else
-            FILE=`echo $HTML | grep -o "<meta name=\"og:title\" content=\".*\" />" | cut -d\" -f4`;
+            FILE=`grep -o "<meta name=\"og:title\" content=\".*\" />" $TMP | cut -d\" -f4`
         fi
 
-        FILE=$FILE".flv";
-        echo "Saving as "`pwd`"/"$FILE;
+        FILE=$FILE".flv"
+        echo "Saving as "`pwd`"/"$FILE
 
-        wget $URL -O "$FILE";
+        wget $URL -O "$FILE"
         echo "Download complete!"
+        rm $TMP
     else
-        echo "No video found for \""$1"\", exiting.";
+        echo "No video found for \""$1"\", exiting."
     fi
 else
-    echo "You must provide an URL";
+    echo "You must provide an URL"
 fi
 
-exit 0;
+exit 0
