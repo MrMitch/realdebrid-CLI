@@ -18,7 +18,7 @@ then
         fi
 
         FILE=$FILE".flv"
-        echo "Saving as "`pwd`"/"$FILE
+        echo "Saving as "$FILE
 
         wget $URL -O "$FILE"
         echo "Download complete!"
