@@ -14,7 +14,7 @@ then
    		else
    			FILE=`date +%Y.%m.%d-%H:%M:%S`"-video"
    		fi
-   		FILE=FILE".flv";
+   		FILE=$FILE".flv";
    		echo "Saving as "$FILE;
 
    		wget $URL -O $FILE;
