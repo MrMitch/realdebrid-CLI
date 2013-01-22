@@ -2,25 +2,27 @@
 
 if [ -n "$1" ] 
 then
-    URL=`curl -s $1 | grep -m 1 "http://s[0-9]*\.real-debrid\.com/dl/[a-zA-Z0-9]*/video\.flv" | cut -d\' -f2`;
+    HTML=`curl -s $1`;
+    URL=`echo $HTML | grep -m 1 -o "http://s[0-9]*\.real-debrid\.com/dl/[a-zA-Z0-9]*/video\.flv" | head -1`;
     
     if [ -n "$URL" ] 
-   	then
-    	echo "URL: "$URL;
+    then
+        echo "URL: "$URL;
 
-   		if [ -n "$2" ]
-   		then
-   			FILE=$2;
-   		else
-   			FILE=`date +%Y.%m.%d-%H:%M:%S`"-video"
-   		fi
-   		FILE=$FILE".flv";
-   		echo "Saving as "$FILE;
+        if [ -n "$2" ]
+        then
+            FILE=$2;
+        else
+            FILE=`echo $HTML | grep -o "<meta name=\"og:title\" content=\".*\" />" | cut -d\" -f4`;
+        fi
 
-   		wget $URL -O $FILE;
-   		echo "Download complete!"
-   	else
-   		echo "No video found for \""$1"\", exiting.";
+        FILE=$FILE".flv";
+        echo "Saving as "`pwd`"/"$FILE;
+
+        wget $URL -O "$FILE";
+        echo "Download complete!"
+    else
+        echo "No video found for \""$1"\", exiting.";
     fi
 else
     echo "You must provide an URL";
