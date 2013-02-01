@@ -1,33 +1,160 @@
 #!/bin/bash
 
-if [ -n "$1" ]
-then
-    TMP="/tmp/rdsd.html"
-    wget -q $1 -O $TMP
-    URL=`grep -m 1 -o "http://s[0-9]*\.real-debrid\.com/dl/[a-zA-Z0-9]*/video\.flv" $TMP`
-    
-    if [ -n "$URL" ] 
-    then
-        echo "URL: "$URL
+# config directory
+CONFIG_DIR=~/.config/rdsd
+CONFIG_DIR=./
 
-        if [ -n "$2" ]
+# login file
+LOGIN_FILE=$CONFIG_DIR"/rdsd.login"
+
+# cookie file
+COOKIE=$CONFIG_DIR"/cookies.txt"
+
+# directory to store rdsd's temp files
+TMP_DIR=/tmp/rdsd
+TMP_DIR=$CONFIG_DIR
+
+LOGGED=false
+
+# Print rdsd usage information
+usage() {
+    echo "Usage: rdsd [OPTION] LINK"
+    echo "Where LINK can be a URL to tefile you want t dowload or a file containing several links."
+    echo "Example: ./rdsd http://host.com/myFile.zip"
+    echo "Example: ./rdsd urls.txt"
+}
+
+# Ask for user's login and password
+ask_login() {
+    echo "What is your Real-Debrid username ?"
+    read LOGIN
+    echo "What is your Real-Debrid password ? (will not be displayed)"
+    read -s PASSWORD
+
+    PASSWORD=`echo -n $PASSWORD | md5sum | tr -d " -"`
+
+    #mkdir -p $CONFIG_DIR
+    echo $LOGIN":"$PASSWORD > $LOGIN_FILE 
+}
+
+# Log into real-debrid.com and record a cookie so we 
+# don't need to login back again for multiple downloads
+login() {
+
+    # if a cookie already exists and it's not expired
+    if [ -r $COOKIE ] 
         then
-            FILE=$2
-        else
-            FILE=`grep -o "<meta name=\"og:title\" content=\".*\" />" $TMP | cut -d\" -f4`
+        echo "OK"
+    else
+        local TMP_RESP=$TMP_DIR"/"rdsd-login-response.json
+        
+        wget -q --save-cookies $COOKIE --keep-session-cookies -O $TMP_RESP \
+        "http://www.real-debrid.com/ajax/login.php?user=$LOGIN&pass=$PASSWORD"
+        
+        local RESULT=`cat $TMP_RESP | tr -d "{}\"" | cut -d, -f2 | cut -d: -f2`
+        if [ $RESULT == "OK" ]
+            then
+            LOGGED=true
         fi
 
-        FILE=$FILE".flv"
-        echo "Saving as "$FILE
-
-        wget $URL -O "$FILE"
-        echo "Download complete!"
-        rm $TMP
-    else
-        echo "No video found for \""$1"\", exiting."
+        rm $TMP_RESP
     fi
-else
-    echo "You must provide an URL"
-fi
+}
 
+unrestrict() {
+    local TMP_RESP=$TMP_DIR"/"rdsd-unrestrict-response.json
+
+    wget -q --load-cookies $COOKIE -O $TMP_RESP \
+    "http://www.real-debrid.com/ajax/unrestrict.php?link=$1"
+
+    local RESULT=`grep -o "_link\":\"\(.*\),\"l" $TMP_RESP | cut -d "\"" -f3`
+
+    echo $RESULT | sed 's/\\//g'
+
+    rm $TMP_RESP
+}
+
+# Download a file
+download() {
+    wget $1
+}
+
+# main programm
+main() {
+    if [ $# -lt 1 ]
+    	then
+        echo "You must provide an URL"
+        usage
+        exit 1
+    else
+        # check for login info
+        if [ ! -r $LOGIN_FILE -a ! -s $LOGIN_FILE ]
+        	then
+            ask_login
+        fi
+
+        # retrieve login info
+        if [ -z $LOGIN -o -z $PASSWORD ]
+        	then
+            LOGIN=`cut -d: -f1 $LOGIN_FILE`
+            PASSWORD=`cut -d: -f2 $LOGIN_FILE`
+        fi
+
+        mkdir -p $TMP_DIR
+
+        if [ ! -r $COOKIE ]
+            then
+            echo "no existing cookie, login in..."
+            login
+        elif [ `tail -1 $COOKIE | cut -f5` -gt `date +%s` ] 
+            then
+            echo "valid cookie"
+            LOGGED=true
+        else
+            echo "previous cookie expired"
+            login
+        fi
+
+        if [ LOGGED ]
+        	then  
+            echo "login OK"
+
+            # if the last arguments is a file, 
+            if [ -r "${!#}" ] 
+            	then
+                echo "multiple downloads" 
+
+                ORIGINAL_LINKS_FILE=${!#}
+                UNRESTRICTED_LINKS_FILE=$CONFIG_DIR"/rdsd-unrestricted"
+                # multiple downloads
+                for LINK in `cat $ORIGINAL_LINKS_FILE`
+                    do
+                    echo -n "unrestricting $LINK"
+                    UNRESTRICTED=`unrestrict $LINK`
+
+                    if [ ${#UNRESTRICTED} -gt 1 ]
+                        then
+                        echo " -> $UNRESTRICTED"
+                        echo $UNRESTRICTED >> $UNRESTRICTED_LINKS_FILE
+                    else
+                        echo " -> WARNING: Unrestriction failed, this file will not be downloaded."
+                    fi
+                done
+
+                wget -i $UNRESTRICTED_LINKS_FILE
+                rm $UNRESTRICTED_LINKS_FILE
+            else
+                echo "single download"
+                echo "unrestricting $1"
+                wget `unrestrict $1`
+            fi
+        else
+            echo "Login failed"
+        fi
+
+        echo "End"
+    fi
+}
+
+main "$@"
 exit 0
