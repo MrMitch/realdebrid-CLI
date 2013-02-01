@@ -2,7 +2,6 @@
 
 # config directory
 CONFIG_DIR=~/.config/rdsd
-CONFIG_DIR=./
 
 # login file
 LOGIN_FILE=$CONFIG_DIR"/rdsd.login"
@@ -12,7 +11,6 @@ COOKIE=$CONFIG_DIR"/cookies.txt"
 
 # directory to store rdsd's temp files
 TMP_DIR=/tmp/rdsd
-TMP_DIR=$CONFIG_DIR
 
 LOGGED=false
 
@@ -33,7 +31,6 @@ ask_login() {
 
     PASSWORD=`echo -n $PASSWORD | md5sum | tr -d " -"`
 
-    #mkdir -p $CONFIG_DIR
     echo $LOGIN":"$PASSWORD > $LOGIN_FILE 
 }
 
@@ -81,6 +78,8 @@ download() {
 
 # main programm
 main() {
+    mkdir -p $CONFIG_DIR
+
     if [ $# -lt 1 ]
     	then
         echo "You must provide an URL"
@@ -151,6 +150,8 @@ main() {
         else
             echo "Login failed"
         fi
+
+        rm -rf $TMP_DIR
 
         echo "End"
     fi
