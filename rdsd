@@ -124,8 +124,9 @@ main() {
                 echo "multiple downloads" 
 
                 ORIGINAL_LINKS_FILE=${!#}
-                UNRESTRICTED_LINKS_FILE=$CONFIG_DIR"/rdsd-unrestricted"
-                # multiple downloads
+                UNRESTRICTED_LINKS_FILE=$TMP_DIR"/rdsd-unrestricted"
+                echo -n "" > $UNRESTRICTED_LINKS_FILE
+                
                 for LINK in `cat $ORIGINAL_LINKS_FILE`
                     do
                     echo -n "unrestricting $LINK"
