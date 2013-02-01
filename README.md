@@ -1,8 +1,11 @@
-#realdebrid-stream-downloader
+#realdebrid-CLI
 
-Download a real-debrid stream as a FLV file to watch it later.
+Use Read-Debrid from your command line !
 
 ##Usage
 ```bash
-./rdsd <URL> [FILENAME]
+Usage: ./rdcli LINK
+Where LINK can be a URL to the file you want to dowload or a file containing several links.
+Example: ./rdcli http://host.com/myFile.zip
+Example: ./rdcli urls.txt
 ```

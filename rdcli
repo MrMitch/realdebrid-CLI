@@ -1,25 +1,25 @@
 #!/bin/bash
 
 # config directory
-CONFIG_DIR=~/.config/rdsd
+CONFIG_DIR=~/.config/rdcli
 
 # login file
-LOGIN_FILE=$CONFIG_DIR"/rdsd.login"
+LOGIN_FILE=$CONFIG_DIR"/rdcli.login"
 
 # cookie file
 COOKIE=$CONFIG_DIR"/cookies.txt"
 
-# directory to store rdsd's temp files
-TMP_DIR=/tmp/rdsd
+# directory to store rdcli's temp files
+TMP_DIR=/tmp/rdcli
 
 LOGGED=false
 
-# Print rdsd usage information
+# Print rdcli usage information
 usage() {
-    echo "Usage: rdsd [OPTION] LINK"
-    echo "Where LINK can be a URL to tefile you want t dowload or a file containing several links."
-    echo "Example: ./rdsd http://host.com/myFile.zip"
-    echo "Example: ./rdsd urls.txt"
+    echo "Usage: ./rdcli LINK"
+    echo "Where LINK can be a URL to the file you want to dowload or a file containing several links."
+    echo "Example: ./rdcli http://host.com/myFile.zip"
+    echo "Example: ./rdcli urls.txt"
 }
 
 # Ask for user's login and password
@@ -43,7 +43,7 @@ login() {
         then
         echo "OK"
     else
-        local TMP_RESP=$TMP_DIR"/"rdsd-login-response.json
+        local TMP_RESP=$TMP_DIR"/"rdcli-login-response.json
         
         wget -q --save-cookies $COOKIE --keep-session-cookies -O $TMP_RESP \
         "http://www.real-debrid.com/ajax/login.php?user=$LOGIN&pass=$PASSWORD"
@@ -59,7 +59,7 @@ login() {
 }
 
 unrestrict() {
-    local TMP_RESP=$TMP_DIR"/"rdsd-unrestrict-response.json
+    local TMP_RESP=$TMP_DIR"/"rdcli-unrestrict-response.json
 
     wget -q --load-cookies $COOKIE -O $TMP_RESP \
     "http://www.real-debrid.com/ajax/unrestrict.php?link=$1"
@@ -124,7 +124,7 @@ main() {
                 echo "multiple downloads" 
 
                 ORIGINAL_LINKS_FILE=${!#}
-                UNRESTRICTED_LINKS_FILE=$TMP_DIR"/rdsd-unrestricted"
+                UNRESTRICTED_LINKS_FILE=$TMP_DIR"/rdcli-unrestricted"
                 echo -n "" > $UNRESTRICTED_LINKS_FILE
                 
                 for LINK in `cat $ORIGINAL_LINKS_FILE`
