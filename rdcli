@@ -38,24 +38,18 @@ ask_login() {
 # don't need to login back again for multiple downloads
 login() {
 
-    # if a cookie already exists and it's not expired
-    if [ -r $COOKIE ] 
+    local TMP_RESP=$TMP_DIR"/"rdcli-login-response.json
+    
+    wget -q --save-cookies $COOKIE --keep-session-cookies -O $TMP_RESP \
+    "http://www.real-debrid.com/ajax/login.php?user=$LOGIN&pass=$PASSWORD"
+    
+    local RESULT=`cat $TMP_RESP | tr -d "{}\"" | cut -d, -f2 | cut -d: -f2`
+    if [ $RESULT == "OK" ]
         then
-        echo "OK"
-    else
-        local TMP_RESP=$TMP_DIR"/"rdcli-login-response.json
-        
-        wget -q --save-cookies $COOKIE --keep-session-cookies -O $TMP_RESP \
-        "http://www.real-debrid.com/ajax/login.php?user=$LOGIN&pass=$PASSWORD"
-        
-        local RESULT=`cat $TMP_RESP | tr -d "{}\"" | cut -d, -f2 | cut -d: -f2`
-        if [ $RESULT == "OK" ]
-            then
-            LOGGED=true
-        fi
-
-        rm $TMP_RESP
+        LOGGED=true
     fi
+
+    rm $TMP_RESP
 }
 
 unrestrict() {
@@ -118,7 +112,7 @@ main() {
         	then  
             echo "login OK"
 
-            # if the last arguments is a file, 
+            # if the last arguments is a valid file
             if [ -r "${!#}" ] 
             	then
                 echo "multiple downloads" 
@@ -145,8 +139,16 @@ main() {
                 rm $UNRESTRICTED_LINKS_FILE
             else
                 echo "single download"
-                echo "unrestricting $1"
-                wget `unrestrict $1`
+                echo -n "unrestricting ${!#}"
+                UNRESTRICTED=`unrestrict ${!#}`
+
+                if [ ${#UNRESTRICTED} -gt 1 ]
+                    then
+                    echo " -> $UNRESTRICTED" 
+                    wget $UNRESTRICTED
+                else
+                    echo " -> WARNING: Unrestriction failed, this file will not be downloaded."
+                fi
             fi
         else
             echo "Login failed"
