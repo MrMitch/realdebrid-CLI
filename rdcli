@@ -12,26 +12,47 @@ COOKIE=$CONFIG_DIR"/cookies.txt"
 # directory to store rdcli's temp files
 TMP_DIR=/tmp/rdcli
 
+WGET_OPTIONS=""
+
 LOGGED=false
+
+DEBUG=true
+
+TEST=false
 
 # Print rdcli usage information
 usage() {
-    echo "Usage: ./rdcli LINK"
-    echo "Where LINK can be a URL to the file you want to dowload or a file containing several links."
-    echo "Example: ./rdcli http://host.com/myFile.zip"
+    echo "Usage: ./rdcli [OPTIONS] LINK"
+    
+    echo -e "\nOPTIONS:"
+    echo -e "  -q\tQuiet mode. No output will be generated."
+    echo -e "  -t\tTest mode. Perform all operations EXCEPT file downloading."
+    echo -e "  -i\tInit. Forces rdcli to ask for your login and password."
+    echo -e "\tUseful if you made a typo or if you changed your login information since you first used rdcli."
+    echo -e "  -h\tHelp. Display this help."
+
+    echo -e "\nLINK can be a URL to a single file you want to dowload (i.e. http://host.com/myFile.zip) or a file containing several links."
+    
+    echo -e "\nExample: ./rdcli http://host.com/myFile.zip"
     echo "Example: ./rdcli urls.txt"
+    echo "Example: ./rdcli -t links-to-test.txt"
+
+    echo -e "\nReport rdcli bugs to https://github.com/MrMitch/realdebrid-CLI/issues/new"
+
+    exit 0
 }
 
 # Ask for user's login and password
 ask_login() {
     echo "What is your Real-Debrid username ?"
     read LOGIN
-    echo "What is your Real-Debrid password ? (will not be displayed)"
+    echo "What is your Real-Debrid password ? (will not be displayed and will not be stored as plain text on your computer)"
     read -s PASSWORD
 
     PASSWORD=`echo -n $PASSWORD | md5sum | tr -d " -"`
 
     echo $LOGIN":"$PASSWORD > $LOGIN_FILE 
+    rm -rf $COOKIE
 }
 
 # Log into real-debrid.com and record a cookie so we 
@@ -44,16 +65,14 @@ login() {
     "http://www.real-debrid.com/ajax/login.php?user=$LOGIN&pass=$PASSWORD"
     
     local RESULT=`cat $TMP_RESP | tr -d "{}\"" | cut -d, -f2 | cut -d: -f2`
-    if [ $RESULT == "OK" ]
+    if [ "$RESULT" == "OK" ]
         then
         LOGGED=true
     fi
-
-    rm $TMP_RESP
 }
 
 unrestrict() {
-    local TMP_RESP=$TMP_DIR"/"rdcli-unrestrict-response.json
+    local TMP_RESP=$TMP_DIR"/rdcli-unrestrict-response.json"
 
     wget -q --load-cookies $COOKIE -O $TMP_RESP \
     "http://www.real-debrid.com/ajax/unrestrict.php?link=$1"
@@ -61,13 +80,45 @@ unrestrict() {
     local RESULT=`grep -o "_link\":\"\(.*\),\"l" $TMP_RESP | cut -d "\"" -f3`
 
     echo $RESULT | sed 's/\\//g'
-
-    rm $TMP_RESP
 }
 
 # Download a file
 download() {
-    wget $1
+    wget $WGET_OPTIONS $1
+}
+
+debug() {
+    if $DEBUG
+        then
+        echo -ne "$@"  
+    fi
+}
+
+parse_options() {
+    for (( i=1; i<${#1}; i++ ))
+        do
+        case ${1:$i:1} in
+            "h" ) 
+                usage;;
+            "i" )
+                ask_login;;
+            "q" ) 
+                WGET_OPTIONS="-q"
+                DEBUG=false;;
+            "t" )
+                TEST=true;;
+            * ) 
+                # ignore non existing options
+                ;;
+        esac
+    done
+}
+
+download() {
+    if ! $TEST
+        then
+        wget $WGET_OPTIONS $1
+    fi
 }
 
 # main programm
@@ -76,10 +127,26 @@ main() {
 
     if [ $# -lt 1 ]
     	then
-        echo "You must provide an URL"
+        echo "You must provide a URL or a valid option"
         usage
-        exit 1
     else
+        # check for command line options
+        if [ $# -ge 1 ]
+            then
+
+            # if the first char is "-", assume it's an option, otherwise, assume it's a link
+            if [ ${1:0:1} == "-" ]
+                then
+                parse_options $1
+
+                # if only options are passed, without actual links to download, exit
+                if [ $# -eq 1 ]
+                    then
+                    exit 0
+                fi
+            fi
+        fi
+
         # check for login info
         if [ ! -r $LOGIN_FILE -a ! -s $LOGIN_FILE ]
         	then
@@ -97,25 +164,28 @@ main() {
 
         if [ ! -r $COOKIE ]
             then
-            echo "no existing cookie, login in..."
+            debug "no existing cookie, login in...\n"
             login
-        elif [ `tail -1 $COOKIE | cut -f5` -gt `date +%s` ] 
-            then
-            echo "valid cookie"
-            LOGGED=true
         else
-            echo "previous cookie expired"
-            login
+            DATE=`tail -1 $COOKIE | cut -f5`
+            if [ ${DATE:-0} -gt `date +%s` ] 
+                then
+                debug "valid cookie\n"
+                LOGGED=true
+            else
+                debug "previous cookie expired\n"
+                login
+            fi
         fi
 
-        if [ LOGGED ]
+        if $LOGGED
         	then  
-            echo "login OK"
+            debug "login OK\n"
 
             # if the last arguments is a valid file
             if [ -r "${!#}" ] 
             	then
-                echo "multiple downloads" 
+                debug "multiple downloads\n" 
 
                 ORIGINAL_LINKS_FILE=${!#}
                 UNRESTRICTED_LINKS_FILE=$TMP_DIR"/rdcli-unrestricted"
@@ -123,41 +193,42 @@ main() {
                 
                 for LINK in `cat $ORIGINAL_LINKS_FILE`
                     do
-                    echo -n "unrestricting $LINK"
+                    debug "unrestricting $LINK"
                     UNRESTRICTED=`unrestrict $LINK`
 
                     if [ ${#UNRESTRICTED} -gt 1 ]
                         then
-                        echo " -> $UNRESTRICTED"
+                        debug " -> $UNRESTRICTED\n"
                         echo $UNRESTRICTED >> $UNRESTRICTED_LINKS_FILE
                     else
-                        echo " -> WARNING: Unrestriction failed, this file will not be downloaded."
+                        debug " -> WARNING: Unrestriction failed, this file will not be downloaded.\n"
                     fi
                 done
-
-                wget -i $UNRESTRICTED_LINKS_FILE
-                rm $UNRESTRICTED_LINKS_FILE
+                WGET_OPTIONS=$WGET_OPTIONS" -i "
+                
+                download $UNRESTRICTED_LINKS_FILE
             else
-                echo "single download"
-                echo -n "unrestricting ${!#}"
+                debug "single download\n"
+                debug "unrestricting ${!#}"
                 UNRESTRICTED=`unrestrict ${!#}`
 
                 if [ ${#UNRESTRICTED} -gt 1 ]
                     then
-                    echo " -> $UNRESTRICTED" 
-                    wget $UNRESTRICTED
+                    debug " -> $UNRESTRICTED\n" 
+                    download $UNRESTRICTED
                 else
-                    echo " -> WARNING: Unrestriction failed, this file will not be downloaded."
+                    debug " -> WARNING: Unrestriction failed, this file will not be downloaded.\n"
                 fi
             fi
         else
-            echo "Login failed"
+            debug "Login failed"
+            exit 1
         fi
 
-        rm -rf $TMP_DIR
-
-        echo "End"
+        debug "End"
     fi
+
+    rm -rf $TMP_DIR
 }
 
 main "$@"
