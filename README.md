@@ -34,6 +34,6 @@ This sofware is distributed under the [WTF Public License](http://www.wtfpl.net/
 
 ##Contributing
 
-This script was initialy writen for my personal use but I'd be more than happy if it can be useful to folk from the magical land of the Internet. Feel free to fork and submit your Pull Request to fix/improve `rdcli`.
+This script was initially written for my personal use but I'd be more than happy if it could be useful to any folk from the magical land of the Internet. Feel free to fork and submit your Pull Request to fix/improve `rdcli`.
 
 Report `rdcli` bugs [here](https://github.com/MrMitch/realdebrid-CLI/issues/new)
