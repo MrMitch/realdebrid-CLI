@@ -12,19 +12,19 @@ mitch@raspberrypi ~ $ ./rdcli [OPTIONS] LINK
 ```
 -q    Quiet mode. No output will be generated.
 -t    Test mode. Perform all operations EXCEPT file downloading.
--i    Init. Forces rdcli to ask for your login and password.
+-i    Init. Force rdcli to ask for your login and password.
       Useful if you made a typo or if you changed your login information since you first used rdcli.
 -h    Help. Display this help.
 ```
 
-`LINK` can be a URL to a single file you want to dowload (i.e. `http://host.com/myFile.zip`) or a file containing several links.
+`LINK` can be a URL to a single file you want to dowload (i.e. `http://host.com/myFile.zip`) or a file on your computer containing several links.
 
 ##Examples:  
 
 ```bash
 mitch@raspberrypi ~ $ ./rdcli http://host.com/myFile.zip  
 mitch@raspberrypi ~ $ ./rdcli urls.txt
-mitch@raspberrypi ~ $ ./rdcli -t links-to-test.txt`  
+mitch@raspberrypi ~ $ ./rdcli -t links-to-test.txt
 ```
 
 ##License
