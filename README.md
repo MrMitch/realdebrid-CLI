@@ -2,10 +2,17 @@
 
 Use Read-Debrid from your command line !
 
+##Installation
+
+To install the last version of `rdcli` on your computer, open a terminal and the following line: 
+```bash
+sudo sh -c "curl https://raw.github.com/MrMitch/realdebrid-CLI/master/rdcli -o /usr/local/bin/rdcli && chmod 0755 /usr/local/bin/rdcli"
+```
+
 ##Usage
 
 ```bash
-mitch@raspberrypi ~ $ ./rdcli [OPTIONS] LINK
+mitch@raspberrypi ~ $ rdcli [OPTIONS] LINK
 ```
 
 `OPTIONS` can be: 
@@ -21,12 +28,13 @@ mitch@raspberrypi ~ $ ./rdcli [OPTIONS] LINK
 
 `LINK` can be set of URLs to files you want to dowload (i.e. http://host.com/myFile.zip) or the path to a file containing them.
 
-##Examples:  
+###Examples:  
 
 ```bash
-mitch@raspberrypi ~ $ ./rdcli http://host.com/myFile.zip  
-mitch@raspberrypi ~ $ ./rdcli urls.txt
-mitch@raspberrypi ~ $ ./rdcli -t links-to-test.txt
+mitch@raspberrypi ~ $ rdcli http://host.com/myFile.zip  
+mitch@raspberrypi ~ $ rdcli urls.txt
+mitch@raspberrypi ~ $ rdcli -t links-to-test.txt
+mitch@raspberrypi ~ $ rdcli -l links.txt > unrestricted-links.txt
 ```
 
 ##License
