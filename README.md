@@ -6,7 +6,8 @@ Use Read-Debrid from your command line !
 
 To install the last version of `rdcli` on your computer, open a terminal and the following line: 
 ```bash
-sudo sh -c "curl https://raw.github.com/MrMitch/realdebrid-CLI/master/rdcli -o /usr/local/bin/rdcli && chmod 0755 /usr/local/bin/rdcli"
+sudo sh -c "curl https://raw.github.com/MrMitch/realdebrid-CLI/master/rdcli -o /usr/local/bin/rdcli \
+&& chmod 0755 /usr/local/bin/rdcli"
 ```
 
 ##Usage
