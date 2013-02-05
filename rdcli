@@ -93,11 +93,6 @@ unrestrict() {
     echo $RESULT | sed 's/\\//g'
 }
 
-# Download a file
-download() {
-    wget $WGET_OPTIONS $1
-}
-
 debug() {
     if $DEBUG
         then
