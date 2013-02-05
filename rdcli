@@ -12,6 +12,8 @@ COOKIE=$CONFIG_DIR"/cookies.txt"
 # directory to store rdcli's temp files
 TMP_DIR=/tmp/rdcli
 
+MD5_COMMAND=""
+
 WGET_OPTIONS=""
 
 LOGGED=false
@@ -42,6 +44,16 @@ usage() {
     exit 0
 }
 
+# Test if md5sum exists, otherwise use md5
+test_md5sum() {
+    if `echo "test" | md5sum > /dev/null 2>&1`
+        then
+        MD5_COMMAND=md5sum
+    else
+        MD5_COMMAND=md5
+    fi
+}
+
 # Ask for user's login and password
 ask_login() {
     echo "What is your Real-Debrid username ?"
@@ -49,7 +61,7 @@ ask_login() {
     echo "What is your Real-Debrid password ? (will not be displayed and will not be stored as plain text on your computer)"
     read -s PASSWORD
 
-    PASSWORD=`echo -n $PASSWORD | md5sum | tr -d " -"`
+    PASSWORD=`echo -n $PASSWORD | $MD5_COMMAND | tr -d " -"`
 
     echo $LOGIN":"$PASSWORD > $LOGIN_FILE 
     rm -rf $COOKIE
@@ -126,7 +138,7 @@ main() {
     mkdir -p $CONFIG_DIR
 
     if [ $# -lt 1 ]
-    	then
+    	  then
         echo "You must provide a URL or a valid option"
         usage
     else
@@ -149,13 +161,13 @@ main() {
 
         # check for login info
         if [ ! -r $LOGIN_FILE -a ! -s $LOGIN_FILE ]
-        	then
+        	  then
             ask_login
         fi
 
         # retrieve login info
         if [ -z $LOGIN -o -z $PASSWORD ]
-        	then
+        	  then
             LOGIN=`cut -d: -f1 $LOGIN_FILE`
             PASSWORD=`cut -d: -f2 $LOGIN_FILE`
         fi
@@ -179,12 +191,12 @@ main() {
         fi
 
         if $LOGGED
-        	then  
+        	  then  
             debug "login OK\n"
 
             # if the last arguments is a valid file
             if [ -r "${!#}" ] 
-            	then
+            	  then
                 debug "multiple downloads\n" 
 
                 ORIGINAL_LINKS_FILE=${!#}
