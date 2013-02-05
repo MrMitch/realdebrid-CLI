@@ -22,18 +22,24 @@ DEBUG=true
 
 TEST=false
 
+LIST=false
+
 # Print rdcli usage information
 usage() {
+    local BOLD=`tput bold`
+    local NORMAL=`tput sgr0`
     echo "Usage: ./rdcli [OPTIONS] LINK"
     
-    echo -e "\nOPTIONS:"
+    echo -e "\n${BOLD}OPTIONS${NORMAL}:"
     echo -e "  -q\tQuiet mode. No output will be generated."
     echo -e "  -t\tTest mode. Perform all operations EXCEPT file downloading."
-    echo -e "  -i\tInit. Forces rdcli to ask for your login and password."
+    echo -e "  -i\tInit. Force rdcli to ask for your login and password."
     echo -e "\tUseful if you made a typo or if you changed your login information since you first used rdcli."
+    echo -e "  -l\tList. Write a list of the successfully unrestricted links on STDOUT, without downloading."
+    echo -e "\t${BOLD}-t${NORMAL} and ${BOLD}-q${NORMAL} options have no effect if ${BOLD}-l${NORMAL} is used."
     echo -e "  -h\tHelp. Display this help."
 
-    echo -e "\nLINK can be a URL to a single file you want to dowload (i.e. http://host.com/myFile.zip) or a file containing several links."
+    echo -e "\n${BOLD}LINK${NORMAL} can be set of URLs to files you want to dowload (i.e. http://host.com/myFile.zip) or the path to a file containing them."
     
     echo -e "\nExample: ./rdcli http://host.com/myFile.zip"
     echo "Example: ./rdcli urls.txt"
@@ -117,7 +123,7 @@ main() {
         usage
     else
 
-        while getopts ":hiqt" OPTION
+        while getopts ":hiqtl" OPTION
             do
             case $OPTION in
                 "h" )
@@ -128,6 +134,10 @@ main() {
                     WGET_OPTIONS="-q"
                     DEBUG=false;;
                 "t" )
+                    TEST=true;;
+                "l" )
+                    LIST=true
+                    DEBUG=false
                     TEST=true;;
             esac
         done
@@ -196,7 +206,13 @@ main() {
                         debug " -> WARNING: Unrestriction failed, this file will not be downloaded.\n"
                     fi
                 done
-                WGET_OPTIONS=$WGET_OPTIONS" -i "
+
+                if $LIST
+                    then
+                    cat $UNRESTRICTED_LINKS_FILE
+                fi
+
+                WGET_OPTIONS=$WGET_OPTIONS"-i"
                 
                 download $UNRESTRICTED_LINKS_FILE
             else
@@ -207,6 +223,12 @@ main() {
                 if [ ${#UNRESTRICTED} -gt 1 ]
                     then
                     debug " -> $UNRESTRICTED\n" 
+
+                    if $LIST
+                        then
+                        echo $UNRESTRICTED
+                    fi
+
                     download $UNRESTRICTED
                 else
                     debug " -> WARNING: Unrestriction failed, this file will not be downloaded.\n"

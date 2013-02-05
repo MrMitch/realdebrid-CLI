@@ -14,10 +14,12 @@ mitch@raspberrypi ~ $ ./rdcli [OPTIONS] LINK
 -t    Test mode. Perform all operations EXCEPT file downloading.
 -i    Init. Force rdcli to ask for your login and password.
       Useful if you made a typo or if you changed your login information since you first used rdcli.
+-l    List. Write a list of the successfully unrestricted links on STDOUT, without downloading.
+      -t and -q options have no effect if -l is used.
 -h    Help. Display this help.
 ```
 
-`LINK` can be a URL to a single file you want to dowload (i.e. `http://host.com/myFile.zip`) or a file on your computer containing several links.
+`LINK` can be set of URLs to files you want to dowload (i.e. http://host.com/myFile.zip) or the path to a file containing them.
 
 ##Examples:  
 
@@ -39,5 +41,6 @@ This script was initially written for my personal use but I'd be more than happy
 Report `rdcli` bugs [here](https://github.com/MrMitch/realdebrid-CLI/issues/new)
 
 ##Contributors
+
 [MrMitch](http://github.com/MrMitch)  
 [fklingler](http://github.com/fklingler)
