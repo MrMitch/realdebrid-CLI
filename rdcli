@@ -190,19 +190,26 @@ main() {
         fi
 
         if $LOGGED
-        	  then  
+            then  
             debug "login OK\n"
 
-            # if the last arguments is a valid file
-            if [ -r "${!#}" ] 
-            	  then
-                debug "multiple downloads\n" 
+            # get the links from a file or stdin
+            if [ -r "${!#}" ]
+                then
+                LINKS=`cat ${!#}`
+            else
+                LINKS=${!#}
+            fi
 
-                ORIGINAL_LINKS_FILE=${!#}
-                UNRESTRICTED_LINKS_FILE=$TMP_DIR"/rdcli-unrestricted"
+            N=`echo -ne "$LINKS" | wc -l`
+
+            if [ $N -gt 1 ]
+                then
+                debug "multiple downloads\n"
+                UNRESTRICTED_LINKS_FILE=$TMP_DIR/rdcli-unrestricted
                 echo -n "" > $UNRESTRICTED_LINKS_FILE
                 
-                for LINK in `cat $ORIGINAL_LINKS_FILE`
+                for LINK in $LINKS
                     do
                     debug "unrestricting $LINK"
                     UNRESTRICTED=`unrestrict $LINK`
