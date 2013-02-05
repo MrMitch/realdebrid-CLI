@@ -106,13 +106,6 @@ debug() {
     fi
 }
 
-download() {
-    if ! $TEST
-        then
-        wget $WGET_OPTIONS $1
-    fi
-}
-
 # main programm
 main() {
     mkdir -p $CONFIG_DIR
@@ -182,43 +175,13 @@ main() {
                 then
                 LINKS=`cat ${!#}`
             else
-                LINKS=${!#}
+                LINKS="${!#}"
             fi
-
-            N=`echo -ne "$LINKS" | wc -l`
-
-            if [ $N -gt 1 ]
-                then
-                debug "multiple downloads\n"
-                UNRESTRICTED_LINKS_FILE=$TMP_DIR/rdcli-unrestricted
-                echo -n "" > $UNRESTRICTED_LINKS_FILE
                 
-                for LINK in $LINKS
-                    do
-                    debug "unrestricting $LINK"
-                    UNRESTRICTED=`unrestrict $LINK`
-
-                    if [ ${#UNRESTRICTED} -gt 1 ]
-                        then
-                        debug " -> $UNRESTRICTED\n"
-                        echo $UNRESTRICTED >> $UNRESTRICTED_LINKS_FILE
-                    else
-                        debug " -> WARNING: Unrestriction failed, this file will not be downloaded.\n"
-                    fi
-                done
-
-                if $LIST
-                    then
-                    cat $UNRESTRICTED_LINKS_FILE
-                fi
-
-                WGET_OPTIONS=$WGET_OPTIONS"-i"
-                
-                download $UNRESTRICTED_LINKS_FILE
-            else
-                debug "single download\n"
-                debug "unrestricting ${!#}"
-                UNRESTRICTED=`unrestrict ${!#}`
+            for LINK in $LINKS
+                do
+                debug "unrestricting $LINK"
+                UNRESTRICTED=`unrestrict $LINK`
 
                 if [ ${#UNRESTRICTED} -gt 1 ]
                     then
@@ -228,12 +191,15 @@ main() {
                         then
                         echo $UNRESTRICTED
                     fi
-
-                    download $UNRESTRICTED
+                    
+                    if ! $TEST
+                        then
+                        wget $WGET_OPTIONS $UNRESTRICTED
+                    fi
                 else
                     debug " -> WARNING: Unrestriction failed, this file will not be downloaded.\n"
                 fi
-            fi
+            done
         else
             debug "Login failed"
             exit 1
