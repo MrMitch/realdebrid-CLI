@@ -100,26 +100,6 @@ debug() {
     fi
 }
 
-parse_options() {
-    for (( i=1; i<${#1}; i++ ))
-        do
-        case ${1:$i:1} in
-            "h" ) 
-                usage;;
-            "i" )
-                ask_login;;
-            "q" ) 
-                WGET_OPTIONS="-q"
-                DEBUG=false;;
-            "t" )
-                TEST=true;;
-            * ) 
-                # ignore non existing options
-                ;;
-        esac
-    done
-}
-
 download() {
     if ! $TEST
         then
@@ -136,22 +116,21 @@ main() {
         echo "You must provide a URL or a valid option"
         usage
     else
-        # check for command line options
-        if [ $# -ge 1 ]
-            then
 
-            # if the first char is "-", assume it's an option, otherwise, assume it's a link
-            if [ ${1:0:1} == "-" ]
-                then
-                parse_options $1
-
-                # if only options are passed, without actual links to download, exit
-                if [ $# -eq 1 ]
-                    then
-                    exit 0
-                fi
-            fi
-        fi
+        while getopts ":hiqt" OPTION
+            do
+            case $OPTION in
+                "h" )
+                    usage;;
+                "i" )
+                    ask_login;;
+                "q" )
+                    WGET_OPTIONS="-q"
+                    DEBUG=false;;
+                "t" )
+                    TEST=true;;
+            esac
+        done
 
         # check for login info
         if [ ! -r $LOGIN_FILE -a ! -s $LOGIN_FILE ]
