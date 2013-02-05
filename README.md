@@ -39,5 +39,5 @@ This script was initially written for my personal use but I'd be more than happy
 Report `rdcli` bugs [here](https://github.com/MrMitch/realdebrid-CLI/issues/new)
 
 ##Contributors
-@MrMitch
-@fklingler
+[MrMitch](http://github.com/MrMitch)  
+[fklingler](http://github.com/fklingler)
