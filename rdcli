@@ -4,10 +4,10 @@
 CONFIG_DIR=~/.config/rdcli
 
 # login file
-LOGIN_FILE=$CONFIG_DIR"/rdcli.login"
+LOGIN_FILE=$CONFIG_DIR/rdcli.login
 
 # cookie file
-COOKIE=$CONFIG_DIR"/cookies.txt"
+COOKIE=$CONFIG_DIR/cookies.txt
 
 # directory to store rdcli's temp files
 TMP_DIR=/tmp/rdcli
@@ -70,8 +70,7 @@ ask_login() {
 # Log into real-debrid.com and record a cookie so we 
 # don't need to login back again for multiple downloads
 login() {
-
-    local TMP_RESP=$TMP_DIR"/"rdcli-login-response.json
+    local TMP_RESP=$TMP_DIR/rdcli-login-response.json
     
     wget -q --save-cookies $COOKIE --keep-session-cookies -O $TMP_RESP \
     "http://www.real-debrid.com/ajax/login.php?user=$LOGIN&pass=$PASSWORD"
@@ -84,7 +83,7 @@ login() {
 }
 
 unrestrict() {
-    local TMP_RESP=$TMP_DIR"/rdcli-unrestrict-response.json"
+    local TMP_RESP=$TMP_DIR/rdcli-unrestrict-response.json
 
     wget -q --load-cookies $COOKIE -O $TMP_RESP \
     "http://www.real-debrid.com/ajax/unrestrict.php?link=$1"
@@ -138,7 +137,7 @@ main() {
     mkdir -p $CONFIG_DIR
 
     if [ $# -lt 1 ]
-    	  then
+        then
         echo "You must provide a URL or a valid option"
         usage
     else
@@ -161,13 +160,13 @@ main() {
 
         # check for login info
         if [ ! -r $LOGIN_FILE -a ! -s $LOGIN_FILE ]
-        	  then
+            then
             ask_login
         fi
 
         # retrieve login info
         if [ -z $LOGIN -o -z $PASSWORD ]
-        	  then
+            then
             LOGIN=`cut -d: -f1 $LOGIN_FILE`
             PASSWORD=`cut -d: -f2 $LOGIN_FILE`
         fi
