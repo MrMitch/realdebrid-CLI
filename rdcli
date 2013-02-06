@@ -12,7 +12,7 @@ COOKIE=$CONFIG_DIR/cookies.txt
 # directory to store rdcli's temp files
 TMP_DIR=/tmp/rdcli
 
-MD5_COMMAND=""
+MD5_COMMAND="md5"
 
 WGET_OPTIONS=""
 
@@ -54,14 +54,13 @@ usage() {
 test_md5sum() {
     if `echo "test" | md5sum > /dev/null 2>&1`
         then
-        MD5_COMMAND=md5sum
-    else
-        MD5_COMMAND=md5
+        MD5_COMMAND=$MD5_COMMAND"sum"
     fi
 }
 
 # Ask for user's login and password
 ask_login() {
+    test_md5sum
     echo "What is your Real-Debrid username ?"
     read LOGIN
     echo "What is your Real-Debrid password ? (will not be displayed and will not be stored as plain text on your computer)"
