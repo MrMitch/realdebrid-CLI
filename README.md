@@ -24,6 +24,7 @@ mitch@raspberrypi ~ $ rdcli [OPTIONS] LINK
       Useful if you made a typo or if you changed your login information since you first used rdcli.
 -l    List. Write a list of the successfully unrestricted links on STDOUT, without downloading.
       -t and -q options have no effect if -l is used.
+-o    Output directory. Download files into a specific directory.
 -h    Help. Display this help.
 ```
 
@@ -32,7 +33,8 @@ mitch@raspberrypi ~ $ rdcli [OPTIONS] LINK
 ###Examples:  
 
 ```bash
-mitch@raspberrypi ~ $ rdcli http://host.com/myFile.zip  
+mitch@raspberrypi ~ $ rdcli http://host.com/myFile.zip
+mitch@raspberrypi ~ $ rdcli -o Documents/ http://host.com/myFile.zip
 mitch@raspberrypi ~ $ rdcli urls.txt
 mitch@raspberrypi ~ $ rdcli -t links-to-test.txt
 mitch@raspberrypi ~ $ rdcli -l links.txt > unrestricted-links.txt
