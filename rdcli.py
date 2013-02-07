@@ -1,22 +1,93 @@
 #!/usr/bin/env python2
-import urllib2
+# -*- coding: utf-8 -*-
 
-__author__ = 'MrMitch'
-
+from cookielib import MozillaCookieJar
+from datetime import datetime
 from getpass import getpass
 from getopt import GetoptError, gnu_getopt
 from hashlib import md5
-from sys import argv, stdin
+from HTMLParser import HTMLParser
+from json import load
 from os import path, makedirs, getcwd, access, W_OK, X_OK
-import urllib, urllib2, cookielib, json
-
-BASE = path.expanduser(u'~') + u'/.config/rdcli-py'
-CONF_FILE = BASE + u'/rdcli.login'
-COOKIE = BASE + u'/cookie.txt'
+from sys import argv
+from urllib import urlencode, unquote
+from urllib2 import HTTPCookieProcessor, build_opener
 
 
-# Print rdcli usage information
-def usage():
+class RDWorker:
+    """
+    Worker class to perform RealDebrid related actions:
+    - format login info so they can be used by RealDebrid
+    - login
+    - unrestricting links
+    - keeping cookies
+    """
+
+    _cookie_file = None
+    _conf_file = None
+    _endpoint = 'http://www.real-debrid.com/ajax/%s'
+
+    cookies = None
+
+    def __init__(self, cookie_file, conf_file):
+        self._cookie_file = cookie_file
+        self._conf_file = conf_file
+        self.cookies = MozillaCookieJar(self._cookie_file)
+
+
+    def ask_login(self):
+        username = raw_input('What is your RealDebrid username?\n')
+        raw_pass = getpass('What is your RealDebrid password (won\'t be displayed and won\'t be stored as plain text)?\n')
+        password = md5(raw_pass).hexdigest()
+
+        try:
+            with open(self._conf_file, 'w') as file:
+                file.write(username + ':' + password)
+        except IOError as e:
+            exit(str(e))
+
+        return {'user': username, 'pass': password}
+
+
+    def login(self, info):
+        if path.isfile(self._cookie_file):
+            self.cookies.load(self._cookie_file)
+
+            for cookie in self.cookies:
+                if cookie.name == 'auth' and not cookie.is_expired():
+                        return # no need for a new cookie
+
+        # request a new cookie if no valid cookie is found or if it's expired
+        opener = build_opener(HTTPCookieProcessor(self.cookies))
+        try:
+            response = opener.open(self._endpoint % 'login.php?%s' % urlencode(info))
+            resp = load(response)
+            opener.close()
+
+            if resp['error'] == 0:
+                self.cookies.save(self._cookie_file)
+            else:
+                exit('Login failed: %s') % unicode(resp['message'])
+        except Exception as e:
+            exit('Login failed: %s' % str(e))
+
+
+    def unrestrict(self, link):
+        opener = build_opener(HTTPCookieProcessor(self.cookies))
+        response = opener.open(self._endpoint % 'unrestrict.php?%s' % urlencode({'link': link}))
+        resp = load(response)
+        opener.close()
+
+        if resp['error'] == 0:
+            return resp['main_link']
+        else:
+            raise ValueError(resp['message'])
+
+
+def usage(status = 0):
+    """
+    Print rdcli usage information
+    """
     print 'Usage: rdcli [OPTIONS] LINK'
 
     print '\nOPTIONS:'
@@ -36,89 +107,51 @@ def usage():
 
     print '\nReport rdcli bugs to https://github.com/MrMitch/realdebrid-CLI/issues/new'
 
-    exit()
-
-
-class RDWorker:
-
-    cookies = None
-    base_URL = 'http://www.real-debrid.com/ajax/%s'
-    debugFlag = False
-
-    def __init__(self):
-        self.cookies = cookielib.MozillaCookieJar(COOKIE)
-
-    def ask_login(self):
-        username = raw_input('What is your RealDebrid username?\n')
-        raw_pass = getpass('What is your RealDebrid password (won\'t be displayed and won\'t be stored as plain text)?\n')
-        password = md5(raw_pass).hexdigest()
-
-        try:
-            with open(CONF_FILE, 'w') as file:
-                file.write(username + ':' + password)
-        except IOError as e:
-            exit(str(e))
-
-        return {'user': username, 'pass': password}
-
-    def login(self, info):
-        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookies))
-        response = opener.open(self.base_URL % 'login.php?%s' % urllib.urlencode(info))
-        resp = json.load(response)
-        opener.close()
-
-        if resp['error'] == 0:
-            self.cookies.save()
-        else:
-            exit('Login failed: %s') % unicode(resp['message'])
-
-
-    def unrestrict(self, link):
-        opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookies))
-        response = opener.open(self.base_URL % 'unrestrict.php?%s' % urllib.urlencode({'link': link}))
-        resp = json.load(response)
-        opener.close()
-
-        if resp['error'] == 0:
-            return resp['main_link']
-        else:
-            raise ValueError(resp['message'])
-
+    exit(status)
 
 
 def main():
+    """
+    Main program
+    """
+
+    base = path.join(path.expanduser(u'~'), u'.config', 'rdcli-py')
+    conf_file = path.join(base, 'rdcli.login')
+    cookie_file = path.join(base, 'cookie.txt')
+
+    list = False
+    test = False
+    verbose = True
+
+    dir=getcwd()
 
     def debug(s):
         if verbose:
             print s,
 
     # make sure the config dir exists
-    if not path.exists(BASE):
-        makedirs(BASE)
+    if not path.exists(base):
+        makedirs(base)
 
-    rdcli = RDWorker()
+    worker = RDWorker(cookie_file, conf_file)
 
+    # parse command-line arguments
     try:
         opts, args = gnu_getopt(argv[1:], 'hiqtlo:')
     except GetoptError as e:
         print str(e)
-        usage()
-
-    list = False
-    test = False
-    verbose = True
-    dir=getcwd()
+        usage(1)
 
     for option, argument in opts:
         if option == '-h':
             usage()
         elif option == '-i':
-            rdcli.ask_login()
+            worker.ask_login()
         elif option == '-q':
             if not list:
                 verbose = False
         elif option == '-t':
-            if not list and verbose:
+            if not list:
                 test = True
         elif option == '-l':
             list = True
@@ -127,7 +160,11 @@ def main():
         elif option == '-o':
             dir = argument
 
+    # no download and no output ? → better stop now
+    if test and not verbose:
+        exit(0)
 
+    # make sure we have something to process
     if len(args) > 0 :
         # ensure we can write in output directory
         if not dir == getcwd() and not path.exists(unicode(dir)):
@@ -138,37 +175,22 @@ def main():
                 debug('Output directory not writable')
                 exit(1)
             else:
+                dir = path.abspath(dir)
                 debug('Output directory: %s\n' % dir)
 
         # retrieve login info
         try:
-            with open(CONF_FILE, 'r') as file:
+            with open(conf_file, 'r') as file:
                 line = file.readline().split(':')
                 info = {'user': line[0],'pass': line[1]}
         except IOError as e:
-            info = rdcli.ask_login()
+            info = worker.ask_login()
 
-        # see if a cookie already exists, create one if not
-        if path.isfile(COOKIE):
-            rdcli.cookies.load(COOKIE)
-            found = False
-
-            for cookie in rdcli.cookies:
-                if cookie.name == 'auth':
-                    found = True
-                    if cookie.is_expired():
-                        debug('Previous cookie expired, getting a new one\n')
-                        rdcli.login(info)
-                    else:
-                        debug('Valid cookie\n')
-
-            if not found:
-                debug('No valid cookie found, login in\n')
-                rdcli.login(info)
-
-        else:
-            debug('No previous cookie, login in')
-            rdcli.login(info)
+        # login
+        try:
+            worker.login(info)
+        except Exception as e:
+            exit('Login failed: %s' % str(e))
 
         if path.isfile(args[0]):
             with open(args[0], 'r') as f:
@@ -176,51 +198,61 @@ def main():
         else:
             links = args[0].splitlines()
 
+        parser = HTMLParser()
+
         # unrestrict and download
         for link in links:
             debug('Unrestricting %s' % link)
 
             try:
-                unrestricted = rdcli.unrestrict(link)
-                debug ('-> ' + unrestricted + '\n')
+                unrestricted = worker.unrestrict(link)
+                debug (u'→ ' + unrestricted + '\n')
 
                 if list:
                     print unrestricted
-                else:
-                    file = path.join(dir, urllib.unquote_plus(unrestricted.split('/')[-1]))
+                elif not test:
+                    file = parser.unescape(unquote(path.basename(unrestricted)))
+                    file = file.encode('latin-1').decode('utf-8').replace('/', '_')
+                    fullpath = path.join(dir, file)
 
-                    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(rdcli.cookies))
-                    stream = opener.open(unrestricted)
-                    meta = stream.info()
-                    total_size = float(meta.getheaders('Content-Length')[0])
+                    try:
+                        opener = build_opener(HTTPCookieProcessor(worker.cookies))
+                        stream = opener.open(unrestricted)
+                        total_size = float(stream.info().getheaders('Content-Length')[0])
 
-                    print 'Downloading: %s (%.2f MB)' % (file, total_size/1048576)
+                        debug('Downloading: %s (%.2f MB)\n' % (fullpath, total_size/1048576))
 
-                    downloaded_size = 0
-                    block_size = 10240
-                    output = open(file, 'wb')
+                        downloaded_size = 0
+                        with open(fullpath, 'wb') as output:
+                            start = datetime.now()
+                            while True:
+                                buffer = stream.read(10240) #10 KB
+                                if not buffer:
+                                    end = datetime.now()
+                                    break
 
-                    while True:
-                        buffer = stream.read(block_size)
-                        if not buffer:
-                            break
+                                output.write(buffer)
+                                downloaded_size += len(buffer)
 
-                        output.write(buffer)
+                                status = r'%d  [%3.2f%%]' % (downloaded_size, downloaded_size * 100. / total_size)
+                                status += chr(8)*(len(status)+1)
+                                debug(status)
 
-                        downloaded_size += len(buffer)
-                        status = r'%10d  [%3.2f%%]' % (downloaded_size, downloaded_size * 100. / total_size)
-                        status += chr(8)*(len(status)+1)
-                        debug(status)
-
-                    output.close()
-                    stream.close()
-
-            except ValueError as e:
+                            stream.close()
+                            debug('\nDownload completed in %s\n' % str(end - start).split('.')[0])
+                    except Exception as e:
+                        debug('Download failed: %s\n' % str(e))
+            except Exception as e:
                 debug ('WARNING: unrestriction failed (%s)' % unicode(e)+'\n')
 
+        debug('End\n')
+        return 0
+    else:
+        usage()
 
-    return 0
 
 if __name__ == '__main__':
-
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        exit('^C caught, exiting...')
