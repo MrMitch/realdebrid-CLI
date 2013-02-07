@@ -1,12 +1,15 @@
 #realdebrid-CLI
 
-Use Read-Debrid from your command line !
+> Use Read-Debrid from your command line !
+
+`rdcli` is a tool allowing you to use RealDebrid from your command line.
+It's written in Python ([2.7.3](http://docs.python.org/2/)) because Python comes pre-installed on most distribution nowadays, limiting the amount of software dependency.
 
 ##Installation
 
 To install the last version of `rdcli` on your computer, open a terminal and the following line: 
 ```bash
-sudo sh -c "curl https://raw.github.com/MrMitch/realdebrid-CLI/master/rdcli -o /usr/local/bin/rdcli \
+sudo sh -c "curl https://raw.github.com/MrMitch/realdebrid-CLI/master/rdcli.py -o /usr/local/bin/rdcli \
 && chmod 0755 /usr/local/bin/rdcli"
 ```
 
