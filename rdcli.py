@@ -158,7 +158,7 @@ def main():
             test = False
             verbose = False
         elif option == '-o':
-            dir = argument
+            dir = path.abspath(path.expanduser(argument))
 
     # no download and no output ? → better stop now
     if test and not verbose:
@@ -175,7 +175,6 @@ def main():
                 debug('Output directory not writable')
                 exit(1)
             else:
-                dir = path.abspath(dir)
                 debug('Output directory: %s\n' % dir)
 
         # retrieve login info
