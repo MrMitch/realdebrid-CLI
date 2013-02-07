@@ -202,6 +202,7 @@ def main():
 
         # unrestrict and download
         for link in links:
+            link = link.strip()
             debug('Unrestricting %s' % link)
 
             try:
@@ -248,7 +249,7 @@ def main():
         debug('End\n')
         return 0
     else:
-        usage()
+        usage(1)
 
 
 if __name__ == '__main__':
@@ -256,3 +257,5 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         exit('^C caught, exiting...')
+    except Exception as e:
+        exit('Fatal error: %s' % str(e))
