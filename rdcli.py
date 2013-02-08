@@ -34,10 +34,10 @@ class RDWorker:
         self._conf_file = conf_file
         self.cookies = MozillaCookieJar(self._cookie_file)
 
-
     def ask_login(self):
         username = raw_input('What is your RealDebrid username?\n')
-        raw_pass = getpass('What is your RealDebrid password (won\'t be displayed and won\'t be stored as plain text)?\n')
+        raw_pass = getpass('What is your RealDebrid password '
+                           '(won\'t be displayed and won\'t be stored as plain text)?\n')
         password = md5(raw_pass).hexdigest()
 
         try:
@@ -48,14 +48,13 @@ class RDWorker:
 
         return {'user': username, 'pass': password}
 
-
     def login(self, info):
         if path.isfile(self._cookie_file):
             self.cookies.load(self._cookie_file)
 
             for cookie in self.cookies:
                 if cookie.name == 'auth' and not cookie.is_expired():
-                        return # no need for a new cookie
+                        return  # no need for a new cookie
 
         # request a new cookie if no valid cookie is found or if it's expired
         opener = build_opener(HTTPCookieProcessor(self.cookies))
@@ -71,8 +70,7 @@ class RDWorker:
         except Exception as e:
             exit('Login failed: %s' % str(e))
 
-
-    def unrestrict(self, link, password = ''):
+    def unrestrict(self, link, password=''):
         opener = build_opener(HTTPCookieProcessor(self.cookies))
         response = opener.open(self._endpoint % 'unrestrict.php?%s' % urlencode({'link': link, 'password': password}))
         resp = load(response)
@@ -84,7 +82,7 @@ class RDWorker:
             raise ValueError(resp['message'])
 
 
-def usage(status = 0):
+def usage(status=0):
     """
     Print rdcli usage information
     """
@@ -101,7 +99,8 @@ def usage(status = 0):
     print '  -p\tPassword. Provide a password.'
     print '  -h\tHelp. Display this help.'
 
-    print '\nLINK can be set of URLs to files you want to dowload (i.e. http://host.com/myFile.zip) or the path to a file containing them.'
+    print '\nLINK can be set of URLs to files you want to download (i.e. http://host.com/myFile.zip) ' \
+          'or the path to a file containing them.'
     print '\nExample: rdcli http://host.com/myFile.zip'
     print 'Example: rdcli urls.txt'
     print 'Example: rdcli -t links-to-test.txt'
@@ -116,7 +115,7 @@ def main():
     Main program
     """
 
-    base = path.join(path.expanduser(u'~'), u'.config', 'rdcli-py')
+    base = path.join(path.expanduser(u'~'), '.config', 'rdcli-py')
     conf_file = path.join(base, 'rdcli.login')
     cookie_file = path.join(base, 'cookie.txt')
 
@@ -125,7 +124,7 @@ def main():
     verbose = True
 
     password = ''
-    dir=getcwd()
+    dir = getcwd()
 
     def debug(s):
         if verbose:
@@ -169,7 +168,7 @@ def main():
         exit(0)
 
     # make sure we have something to process
-    if len(args) > 0 :
+    if len(args) > 0:
         # ensure we can write in output directory
         if not dir == getcwd() and not path.exists(unicode(dir)):
             debug('%s no such directory' % unicode(dir))
@@ -179,14 +178,14 @@ def main():
                 debug('Output directory not writable')
                 exit(1)
             else:
-                debug('Output directory: %s\n' % dir)
+                debug(u'Output directory: %s\n' % dir)
 
         # retrieve login info
         try:
-            with open(conf_file, 'r') as file:
-                line = file.readline().split(':')
-                info = {'user': line[0],'pass': line[1]}
-        except IOError as e:
+            with open(conf_file, 'r') as conf:
+                line = conf.readline().split(':')
+                info = {'user': line[0], 'pass': line[1]}
+        except IOError:
             info = worker.ask_login()
 
         # login
@@ -202,6 +201,7 @@ def main():
             links = args[0].splitlines()
 
         parser = HTMLParser()
+        MB = 1048576
 
         # unrestrict and download
         for link in links:
@@ -210,44 +210,48 @@ def main():
 
             try:
                 unrestricted = worker.unrestrict(link, password)
-                debug (u'→ ' + unrestricted + '\n')
+                debug(u'→ ' + unrestricted + '\n')
 
                 if list:
                     print unrestricted
                 elif not test:
-                    file = parser.unescape(unquote(path.basename(unrestricted)))
-                    file = file.encode('latin-1').decode('utf-8').replace('/', '_')
-                    fullpath = path.join(dir, file)
+                    filename = parser.unescape(unquote(path.basename(unrestricted)))
+                    filename = filename.encode('latin-1').decode('utf-8').replace('/', '_')
+                    fullpath = path.join(dir, filename)
 
                     try:
                         opener = build_opener(HTTPCookieProcessor(worker.cookies))
                         stream = opener.open(unrestricted)
                         total_size = float(stream.info().getheaders('Content-Length')[0])
 
-                        debug('Downloading: %s (%.2f MB)\n' % (fullpath, total_size/1048576))
+                        debug(u'Downloading: %s (%.2f MB)\n' % (fullpath, total_size / MB))
 
                         downloaded_size = 0
+                        percentage = 0
                         with open(fullpath, 'wb') as output:
                             start = datetime.now()
                             while True:
-                                buffer = stream.read(10240) #10 KB
+                                content = stream.read(10240)  # 10 KB
                                 if not buffer:
                                     end = datetime.now()
                                     break
 
-                                output.write(buffer)
-                                downloaded_size += len(buffer)
+                                output.write(content)
+                                downloaded_size += len(content)
+                                percentage = downloaded_size * 100. / total_size
 
-                                status = r'%d  [%3.2f%%]' % (downloaded_size, downloaded_size * 100. / total_size)
-                                status += chr(8)*(len(status)+1)
+                                status = r'%d  [%3.2f%%]' % (downloaded_size, percentage)
+                                status += chr(8) * (len(status) + 1)
                                 debug(status)
 
                             stream.close()
-                            debug('\nDownload completed in %s\n' % str(end - start).split('.')[0])
+                            speed = (downloaded_size / MB) / (end - start).total_seconds()
+                            debug('%.2f%% downloaded in %s (~ %.2f MB/s)\n' % (percentage, str(end - start).split('.')[0], speed))
+
                     except Exception as e:
                         debug('Download failed: %s\n' % str(e))
             except Exception as e:
-                debug ('WARNING: unrestriction failed (%s)' % unicode(e)+'\n')
+                debug('WARNING: unrestriction failed (%s)' % unicode(e) + '\n')
 
         debug('End\n')
         return 0
