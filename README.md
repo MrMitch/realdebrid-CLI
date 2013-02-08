@@ -32,7 +32,7 @@ mitch@raspberrypi ~ $ rdcli [OPTIONS] LINK
 -h    Help. Display this help.
 ```
 
-`LINK` can be set of URLs to files you want to dowload (i.e. http://host.com/myFile.zip) or the path to a file containing them.
+`LINK` can be set of URLs to files you want to download (i.e. http://host.com/myFile.zip) or the path to a file containing them.
 
 ###Examples:  
 
@@ -46,7 +46,7 @@ mitch@raspberrypi ~ $ rdcli -l links.txt > unrestricted-links.txt
 
 ##License
 
-This sofware is distributed under the [WTF Public License](http://www.wtfpl.net/). A copy of the license can be found [here](http://www.wtfpl.net/txt/copying).
+This software is distributed under the [WTF Public License](http://www.wtfpl.net/). A copy of the license can be found [here](http://www.wtfpl.net/txt/copying).
 
 
 ##Contributing
