@@ -72,9 +72,9 @@ class RDWorker:
             exit('Login failed: %s' % str(e))
 
 
-    def unrestrict(self, link):
+    def unrestrict(self, link, password = ''):
         opener = build_opener(HTTPCookieProcessor(self.cookies))
-        response = opener.open(self._endpoint % 'unrestrict.php?%s' % urlencode({'link': link}))
+        response = opener.open(self._endpoint % 'unrestrict.php?%s' % urlencode({'link': link, 'password': password}))
         resp = load(response)
         opener.close()
 
@@ -123,6 +123,7 @@ def main():
     test = False
     verbose = True
 
+    password = ''
     dir=getcwd()
 
     def debug(s):
@@ -137,7 +138,7 @@ def main():
 
     # parse command-line arguments
     try:
-        opts, args = gnu_getopt(argv[1:], 'hiqtlo:')
+        opts, args = gnu_getopt(argv[1:], 'hiqtlp:o:')
     except GetoptError as e:
         print str(e)
         usage(1)
@@ -159,6 +160,8 @@ def main():
             verbose = False
         elif option == '-o':
             dir = path.abspath(path.expanduser(argument))
+        elif option == '-p':
+            password = argument
 
     # no download and no output ? → better stop now
     if test and not verbose:
@@ -205,7 +208,7 @@ def main():
             debug('Unrestricting %s' % link)
 
             try:
-                unrestricted = worker.unrestrict(link)
+                unrestricted = worker.unrestrict(link, password)
                 debug (u'→ ' + unrestricted + '\n')
 
                 if list:
