@@ -1,4 +1,4 @@
-__author__ = 'mickael'
+__author__ = 'MrMitch'
 
 from cookielib import MozillaCookieJar
 from getpass import getpass

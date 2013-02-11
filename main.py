@@ -138,7 +138,7 @@ def main():
         # unrestrict and download
         for link in links:
             link = link.strip()
-            debug('Unrestricting %s' % link)
+            debug('\nUnrestricting %s' % link)
 
             try:
                 unrestricted = worker.unrestrict(link, password)

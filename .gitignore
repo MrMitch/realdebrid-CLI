@@ -2,3 +2,4 @@ tests
 login
 .idea
 *.dl
+*.pyc
