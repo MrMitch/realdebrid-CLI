@@ -7,10 +7,11 @@ It's written in Python ([2.7.3](http://docs.python.org/2/)) because Python comes
 
 ##Installation
 
-To install the last version of `rdcli` on your computer, open a terminal and the following line: 
+To install the last version of `rdcli` on your computer, open a terminal and the paste following line:
 ```bash
 sudo sh -c "git clone https://github.com/MrMitch/realdebrid-CLI.git /usr/local/bin/realdebrid-CLI \
-&& chmod 0755 /usr/local/bin/realdebrid-CLI/*.py && ln -s /usr/local/bin/realdebrid-CLI/main.py /usr/local/bin/rdcli"
+&& chmod 0755 /usr/local/bin/realdebrid-CLI/*.py \
+&& ln -s /usr/local/bin/realdebrid-CLI/main.py /usr/local/bin/rdcli"
 ```
 
 ##Usage
