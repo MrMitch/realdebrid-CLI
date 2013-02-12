@@ -10,6 +10,20 @@ from urllib2 import build_opener, HTTPCookieProcessor
 from os import path
 
 
+class UnrestrictionError(Exception):
+
+    UNSUPPORTED = 4
+    NO_SERVER = 9
+    UNAVAILABLE = 11
+
+    def __init__(self, message, code=-1):
+        self.message = message
+        self.code = code
+
+    def __str__(self):
+        return u'[Error %i] %s' % (self.code, self.message)
+
+
 class RDWorker:
     """
     Worker class to perform RealDebrid related actions:
@@ -19,11 +33,7 @@ class RDWorker:
     - keeping cookies
     """
 
-    _cookie_file = None
-    _conf_file = None
     _endpoint = 'http://www.real-debrid.com/ajax/%s'
-
-    cookies = None
 
     def __init__(self, cookie_file, conf_file):
         self._cookie_file = cookie_file
@@ -75,7 +85,7 @@ class RDWorker:
         if resp['error'] == 0:
             return resp['main_link']
         else:
-            raise ValueError(resp['message'])
+            raise UnrestrictionError(resp['message'], resp['error'])
 
     def get_filename_from_url(self, original):
         parser = HTMLParser()

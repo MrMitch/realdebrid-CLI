@@ -6,7 +6,7 @@ from getopt import GetoptError, gnu_getopt
 from HTMLParser import HTMLParser
 from os import path, makedirs, getcwd, access, W_OK, X_OK
 from sys import argv
-from RDWorker import RDWorker
+from RDWorker import RDWorker, UnrestrictionError
 from urllib2 import HTTPCookieProcessor, build_opener
 
 
@@ -177,12 +177,12 @@ def main():
                             stream.close()
 
                         speed = (downloaded_size / MB) / (end - start).total_seconds()
-                        debug('%.2f%% downloaded in %s (~ %.2f MB/s)\n' % (percentage, str(end - start).split('.')[0], speed))
+                        debug(u'%.2f%% downloaded in %s (\u2248 %.2f MB/s)\n' % (percentage, str(end - start).split('.')[0], speed))
 
-                    except Exception as e:
+                    except BaseException as e:
                         debug('Download failed: %s\n' % str(e))
-            except Exception as e:
-                debug('WARNING: unrestriction failed (%s)' % unicode(e) + '\n')
+            except UnrestrictionError as e:
+                debug('WARNING: unrestriction failed (%s)' % str(e) + '\n')
 
         debug('End\n')
         return 0
