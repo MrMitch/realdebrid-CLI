@@ -3,9 +3,10 @@ __author__ = 'MrMitch'
 from cookielib import MozillaCookieJar
 from getpass import getpass
 from hashlib import md5
+from HTMLParser import HTMLParser
 from json import load
-from urllib import urlencode
-from urllib2 import HTTPCookieProcessor, build_opener
+from urllib import unquote, urlencode
+from urllib2 import build_opener, HTTPCookieProcessor
 from os import path
 
 
@@ -75,3 +76,8 @@ class RDWorker:
             return resp['main_link']
         else:
             raise ValueError(resp['message'])
+
+    def get_filename_from_url(self, original):
+        parser = HTMLParser()
+        filename = parser.unescape(unquote(path.basename(original)))
+        return filename.encode('latin-1').decode('utf-8').replace('/', '_')

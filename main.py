@@ -7,7 +7,6 @@ from HTMLParser import HTMLParser
 from os import path, makedirs, getcwd, access, W_OK, X_OK
 from sys import argv
 from RDWorker import RDWorker
-from urllib import unquote
 from urllib2 import HTTPCookieProcessor, build_opener
 
 
@@ -147,8 +146,7 @@ def main():
                 if list:
                     print unrestricted
                 elif not test:
-                    filename = parser.unescape(unquote(path.basename(unrestricted)))
-                    filename = filename.encode('latin-1').decode('utf-8').replace('/', '_')
+                    filename = worker.get_filename_from_url(unrestricted)
                     fullpath = path.join(dir, filename)
 
                     try:
@@ -164,7 +162,7 @@ def main():
                             start = datetime.now()
                             while True:
                                 content = stream.read(10240)  # 10 KB
-                                if not buffer:
+                                if not content:
                                     end = datetime.now()
                                     break
 
@@ -177,8 +175,9 @@ def main():
                                 debug(status)
 
                             stream.close()
-                            speed = (downloaded_size / MB) / (end - start).total_seconds()
-                            debug('%.2f%% downloaded in %s (~ %.2f MB/s)\n' % (percentage, str(end - start).split('.')[0], speed))
+
+                        speed = (downloaded_size / MB) / (end - start).total_seconds()
+                        debug('%.2f%% downloaded in %s (~ %.2f MB/s)\n' % (percentage, str(end - start).split('.')[0], speed))
 
                     except Exception as e:
                         debug('Download failed: %s\n' % str(e))
