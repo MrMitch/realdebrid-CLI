@@ -55,21 +55,30 @@ class RDWorker:
         self._conf_file = conf_file
         self.cookies = MozillaCookieJar(self._cookie_file)
 
-    def ask_login(self):
+    def ask_credentials(self):
+        """
+        Ask for user credentials
+        :return: :raise:
+        """
         username = raw_input('What is your RealDebrid username?\n')
         raw_pass = getpass('What is your RealDebrid password '
                            '(won\'t be displayed and won\'t be stored as plain text)?\n')
         password = md5(raw_pass).hexdigest()
 
         try:
-            with open(self._conf_file, 'w') as file:
-                file.write(username + ':' + password)
+            with open(self._conf_file, 'w') as conf:
+                conf.write(username + ':' + password)
         except IOError:
             raise
 
         return {'user': username, 'pass': password}
 
     def login(self, info):
+        """
+        Log into Real-Debrid
+        :param info:
+        :return: :raise:
+        """
         if path.isfile(self._cookie_file):
             self.cookies.load(self._cookie_file)
 
@@ -92,6 +101,12 @@ class RDWorker:
             raise Exception('Login failed: %s' % str(e))
 
     def unrestrict(self, link, password=''):
+        """
+        Unrestrict a download URL
+        :param link:
+        :param password:
+        :return: :raise:
+        """
         opener = build_opener(HTTPCookieProcessor(self.cookies))
         response = opener.open(self._endpoint % 'unrestrict.php?%s' % urlencode({'link': link, 'password': password}))
         resp = load(response)
@@ -103,6 +118,11 @@ class RDWorker:
             raise UnrestrictionError(resp['message'], resp['error'])
 
     def get_filename_from_url(self, original):
+        """
+        Extract and decode a filename from an unrestricted url
+        :param original:
+        :return:
+        """
         parser = HTMLParser()
         filename = parser.unescape(unquote(path.basename(original)))
         return filename.encode('latin-1').decode('utf-8').replace('/', '_')

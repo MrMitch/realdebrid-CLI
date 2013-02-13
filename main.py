@@ -75,7 +75,7 @@ def main():
         if option == '-h':
             usage()
         elif option == '-i':
-            worker.ask_login()
+            worker.ask_credentials()
         elif option == '-q':
             if not list:
                 verbose = False
@@ -115,7 +115,7 @@ def main():
                 info = {'user': line[0], 'pass': line[1]}
         except IOError:
             try:
-                info = worker.ask_login()
+                info = worker.ask_credentials()
             except Exception as e:
                 exit('Unable to get login info: %s' % str(e))
 
