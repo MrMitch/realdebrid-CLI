@@ -10,19 +10,33 @@ from urllib2 import build_opener, HTTPCookieProcessor
 from os import path
 
 
-class UnrestrictionError(Exception):
+class RDError(Exception):
+    """
+    Base class for all Real-Debrid related exceptions
+    """
 
-    UNSUPPORTED = 4
-    UPGRADE_NEEDED = 2
-    NO_SERVER = 9
-    UNAVAILABLE = 11
+    DEFAULT_CODE = -100
 
-    def __init__(self, message, code=-1):
+    def __init__(self, message, code=DEFAULT_CODE):
         self.message = message
         self.code = code
 
     def __str__(self):
         return u'[Error %i] %s' % (self.code, self.message)
+
+
+class UnrestrictionError(RDError):
+
+    UNSUPPORTED = 4
+    NO_SERVER = 9
+    UNAVAILABLE = 11
+
+
+class LoginError(RDError):
+
+    MISSING_INFO = -1
+    BAD_CREDENTIALS = 1
+    TOO_MANY_ATTEMPTS = 3
 
 
 class RDWorker:
@@ -73,7 +87,7 @@ class RDWorker:
             if resp['error'] == 0:
                 self.cookies.save(self._cookie_file)
             else:
-                raise Exception('Login error: %s' % unicode(resp['message']))
+                raise LoginError(resp['message'], resp['error'])
         except Exception as e:
             raise Exception('Login failed: %s' % str(e))
 
