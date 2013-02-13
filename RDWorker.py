@@ -1,5 +1,6 @@
 __author__ = 'MrMitch'
 
+from ConfigParser import SafeConfigParser
 from cookielib import MozillaCookieJar
 from getpass import getpass
 from hashlib import md5
@@ -74,9 +75,14 @@ class RDWorker:
                            '(won\'t be displayed and won\'t be stored as plain text)?\n')
         password = md5(raw_pass).hexdigest()
 
+        config_parser = SafeConfigParser()
+        config_parser.add_section('rdcli')
+        config_parser.set('rdcli', 'username', username)
+        config_parser.set('rdcli', 'password', password)
+
         try:
-            with open(self._conf_file, 'w') as conf:
-                conf.write(username + ':' + password)
+            with open(self._conf_file, 'wb') as conf:
+                config_parser.write(conf)
         except IOError:
             raise
 

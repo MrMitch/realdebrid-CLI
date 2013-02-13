@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from ConfigParser import SafeConfigParser, NoSectionError
 from datetime import datetime
 from getopt import GetoptError, gnu_getopt
 from HTMLParser import HTMLParser
@@ -44,7 +45,7 @@ def main():
     """
 
     base = path.join(path.expanduser(u'~'), '.config', 'rdcli-py')
-    conf_file = path.join(base, 'rdcli.login')
+    conf_file = path.join(base, 'rdcli.conf')
     cookie_file = path.join(base, 'cookie.txt')
 
     list = False
@@ -109,11 +110,11 @@ def main():
                 debug(u'Output directory: %s\n' % dir)
 
         # retrieve login info
+        config_parser = SafeConfigParser()
         try:
-            with open(conf_file, 'r') as conf:
-                line = conf.readline().split(':')
-                info = {'user': line[0], 'pass': line[1]}
-        except IOError:
+            config_parser.read(conf_file)
+            info = {'user': config_parser.get('rdcli', 'username'), 'pass': config_parser.get('rdcli', 'password')}
+        except NoSectionError:
             try:
                 info = worker.ask_credentials()
             except Exception as e:
