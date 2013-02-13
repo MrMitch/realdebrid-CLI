@@ -28,6 +28,7 @@ class RDError(Exception):
 class UnrestrictionError(RDError):
 
     UNSUPPORTED = 4
+    UPGRADE_NEEDED = 2
     NO_SERVER = 9
     UNAVAILABLE = 11
 

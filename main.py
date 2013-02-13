@@ -75,7 +75,7 @@ def main():
         if option == '-h':
             usage()
         elif option == '-i':
-            worker.ask_credentials()
+            info = worker.ask_credentials()
         elif option == '-q':
             if not list:
                 verbose = False
