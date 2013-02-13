@@ -13,6 +13,7 @@ from os import path
 class UnrestrictionError(Exception):
 
     UNSUPPORTED = 4
+    UPGRADE_NEEDED = 2
     NO_SERVER = 9
     UNAVAILABLE = 11
 
