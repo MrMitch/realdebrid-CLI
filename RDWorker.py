@@ -32,6 +32,14 @@ class UnrestrictionError(RDError):
     NO_SERVER = 9
     UNAVAILABLE = 11
 
+    @classmethod
+    def fixable_errors(cls):
+        """
+        Get the set of errors that are not fatal
+        :return:
+        """
+        return cls.UPGRADE_NEEDED, cls.NO_SERVER
+
 
 class LoginError(RDError):
 
