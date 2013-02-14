@@ -111,7 +111,7 @@ class RDWorker:
             if resp['error'] == 0:
                 self.cookies.save(self._cookie_file)
             else:
-                raise LoginError(resp['message'], resp['error'])
+                raise LoginError(resp['message'].encode('latin-1').decode('utf-8'), resp['error'])
         except Exception as e:
             raise Exception('Login failed: %s' % str(e))
 
@@ -130,7 +130,7 @@ class RDWorker:
         if resp['error'] == 0:
             return resp['main_link']
         else:
-            raise UnrestrictionError(resp['message'], resp['error'])
+            raise UnrestrictionError(resp['message'].encode('latin-1').decode('utf-8'), resp['error'])
 
     def get_filename_from_url(self, original):
         """
