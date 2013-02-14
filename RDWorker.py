@@ -23,7 +23,7 @@ class RDError(Exception):
         self.code = code
 
     def __str__(self):
-        return u'[Error %i] %s' % (self.code, self.message)
+        return '[Error %i] %s' % (self.code, self.message)
 
 
 class UnrestrictionError(RDError):
