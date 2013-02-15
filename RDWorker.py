@@ -1,4 +1,5 @@
-__author__ = 'MrMitch'
+# -*- coding: utf-8 -*-
+_author__ = 'MrMitch'
 
 from ConfigParser import SafeConfigParser
 from cookielib import MozillaCookieJar
