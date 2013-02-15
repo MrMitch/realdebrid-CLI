@@ -132,9 +132,6 @@ def main():
         else:
             links = args[0].splitlines()
 
-        parser = HTMLParser()
-        MB = 1048576
-
         # unrestrict and download
         for link in links:
             link = link.strip()
@@ -151,39 +148,54 @@ def main():
                     fullpath = path.join(dir, filename)
 
                     try:
+                        to_mb = lambda b: b / 1048576.
                         opener = build_opener(HTTPCookieProcessor(worker.cookies))
                         stream = opener.open(unrestricted)
-                        total_size = float(stream.info().getheaders('Content-Length')[0])
+                        info = stream.info().getheaders('Content-Length')
 
-                        debug(u'Downloading: %s (%.2f MB)\n' % (fullpath, total_size / MB))
+                        total_size = 0
+                        if len(info):
+                            total_size = float(info[0])
+                            start = 'Downloading: %s (%.2f MB)\n' % (fullpath, to_mb(total_size))
+                        else:
+                            start = 'Downloading: %s (unknown size)\n' % fullpath
+
+                        debug(start)
 
                         downloaded_size = 0
-                        percentage = 0
+                        percentage = ''
                         with open(fullpath, 'wb') as output:
                             start = datetime.now()
                             while True:
-                                content = stream.read(10240)  # 10 KB
-                                if not content:
+
+                                try:
+                                    content = stream.read(10240)  # 10 KB
                                     end = datetime.now()
+
+                                    if not content:
+                                        break
+
+                                    output.write(content)
+                                    downloaded_size += len(content)
+
+                                    if total_size:
+                                        percentage = ' [%3.2f%%]' % (downloaded_size * 100. / total_size)
+
+                                    status = '\r%.3f MB%s' % (to_mb(downloaded_size), percentage)
+                                    debug(status)
+                                except KeyboardInterrupt:
                                     break
-
-                                output.write(content)
-                                downloaded_size += len(content)
-                                percentage = downloaded_size * 100. / total_size
-
-                                status = r'%d  [%3.2f%%]' % (downloaded_size, percentage)
-                                status += chr(8) * (len(status) + 1)
-                                debug(status)
 
                             stream.close()
 
-                        speed = (downloaded_size / MB) / (end - start).total_seconds()
-                        debug(u'%.2f%% downloaded in %s (\u2248 %.2f MB/s)\n' % (percentage, str(end - start).split('.')[0], speed))
+                        speed = to_mb(downloaded_size) / (end - start).total_seconds()
+                        debug('\r%.2f MB%s downloaded in %s (≈ %.2f MB/s)\n'
+                              % (to_mb(downloaded_size), percentage, str(end - start).split('.')[0], speed))
 
                     except BaseException as e:
-                        debug('Download failed: %s\n' % str(e))
+                        debug('\nDownload failed: %s\n' % e)
             except UnrestrictionError as e:
-                debug('WARNING: unrestriction failed (%s)' % str(e) + '\n')
+                debug('→ WARNING, unrestriction failed (%s)' % str(e) + '\n')
 
         debug('End\n')
         return 0
