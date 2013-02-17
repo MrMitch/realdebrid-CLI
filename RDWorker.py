@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 _author__ = 'MrMitch'
 
-from ConfigParser import SafeConfigParser
 from cookielib import MozillaCookieJar
-from getpass import getpass
-from hashlib import md5
 from HTMLParser import HTMLParser
 from json import load
 from urllib import unquote, urlencode
@@ -61,38 +58,15 @@ class RDWorker:
 
     _endpoint = 'http://www.real-debrid.com/ajax/%s'
 
-    def __init__(self, cookie_file, conf_file):
+    def __init__(self, cookie_file):
         self._cookie_file = cookie_file
-        self._conf_file = conf_file
         self.cookies = MozillaCookieJar(self._cookie_file)
 
-    def ask_credentials(self):
-        """
-        Ask for user credentials
-        :return: :raise:
-        """
-        username = raw_input('What is your RealDebrid username?\n')
-        raw_pass = getpass('What is your RealDebrid password '
-                           '(won\'t be displayed and won\'t be stored as plain text)?\n')
-        password = md5(raw_pass).hexdigest()
-
-        config_parser = SafeConfigParser()
-        config_parser.add_section('rdcli')
-        config_parser.set('rdcli', 'username', username)
-        config_parser.set('rdcli', 'password', password)
-
-        try:
-            with open(self._conf_file, 'wb') as conf:
-                config_parser.write(conf)
-        except IOError:
-            raise
-
-        return {'user': username, 'pass': password}
-
-    def login(self, info):
+    def login(self, username, password):
         """
         Log into Real-Debrid
-        :param info:
+        :param username:
+        :param password:
         :return: :raise:
         """
         if path.isfile(self._cookie_file):
@@ -105,7 +79,7 @@ class RDWorker:
         # request a new cookie if no valid cookie is found or if it's expired
         opener = build_opener(HTTPCookieProcessor(self.cookies))
         try:
-            response = opener.open(self._endpoint % 'login.php?%s' % urlencode(info))
+            response = opener.open(self._endpoint % 'login.php?%s' % urlencode({'user': username, 'pass': password}))
             resp = load(response)
             opener.close()
 

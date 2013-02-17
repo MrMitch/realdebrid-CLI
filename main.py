@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ConfigParser import SafeConfigParser, NoSectionError
 from datetime import datetime
 from getopt import GetoptError, gnu_getopt
-from HTMLParser import HTMLParser
+from getpass import getpass
+from hashlib import md5
+from json import dump, load
 from os import path, makedirs, getcwd, access, W_OK, X_OK
 from sys import argv
 from RDWorker import RDWorker, UnrestrictionError
@@ -39,21 +40,36 @@ def usage(status=0):
     exit(status)
 
 
+def ask_credentials(conf_file):
+    """
+    Ask for user credentials and save them into a file
+    """
+    username = raw_input('What is your RealDebrid username?\n')
+    raw_pass = getpass('What is your RealDebrid password '
+                       '(won\'t be displayed and won\'t be stored as plain text)?')
+    password = md5(raw_pass).hexdigest()
+
+    with open(conf_file, 'wb') as output:
+        dump({'username': username, 'password': password}, output, indent=4)
+
+    return username, password
+
+
 def main():
     """
     Main program
     """
 
-    base = path.join(path.expanduser(u'~'), '.config', 'rdcli-py')
-    conf_file = path.join(base, 'rdcli.conf')
+    base = path.join(path.expanduser('~'), '.config', 'rdcli-py')
+    conf_file = path.join(base, 'conf.json')
     cookie_file = path.join(base, 'cookie.txt')
 
     list = False
     test = False
     verbose = True
 
-    password = ''
-    dir = getcwd()
+    download_password = ''
+    output_dir = getcwd()
 
     def debug(s):
         if verbose:
@@ -63,7 +79,7 @@ def main():
     if not path.exists(base):
         makedirs(base)
 
-    worker = RDWorker(cookie_file, conf_file)
+    worker = RDWorker(cookie_file)
 
     # parse command-line arguments
     try:
@@ -76,7 +92,7 @@ def main():
         if option == '-h':
             usage()
         elif option == '-i':
-            info = worker.ask_credentials()
+            username, password = ask_credentials(conf_file)
         elif option == '-q':
             if not list:
                 verbose = False
@@ -88,42 +104,43 @@ def main():
             test = False
             verbose = False
         elif option == '-o':
-            dir = path.abspath(path.expanduser(argument))
+            output_dir = path.abspath(path.expanduser(argument))
         elif option == '-p':
-            password = argument
+            download_password = argument
 
-    # no download and no output ? → better stop now
+    # stop now if no download and no output wanted
     if test and not verbose:
         exit(0)
 
     # make sure we have something to process
     if len(args) > 0:
         # ensure we can write in output directory
-        if not dir == getcwd() and not path.exists(unicode(dir)):
-            debug('%s no such directory' % unicode(dir))
+        if not output_dir == getcwd() and not path.exists(unicode(output_dir)):
+            debug('%s no such directory' % unicode(output_dir))
             exit(1)
         else:
-            if not access(unicode(dir), W_OK | X_OK):
+            if not access(unicode(output_dir), W_OK | X_OK):
                 debug('Output directory not writable')
                 exit(1)
             else:
-                debug(u'Output directory: %s\n' % dir)
+                debug(u'Output directory: %s\n' % output_dir)
 
         # retrieve login info
-        config_parser = SafeConfigParser()
         try:
-            config_parser.read(conf_file)
-            info = {'user': config_parser.get('rdcli', 'username'), 'pass': config_parser.get('rdcli', 'password')}
-        except NoSectionError:
+            with open(conf_file, 'r') as conf:
+                obj = load(conf)
+                username = obj['username']
+                password = obj['password']
+        except BaseException:
             try:
-                info = worker.ask_credentials()
-            except Exception as e:
+                username, password = ask_credentials(conf_file)
+            except BaseException as e:
                 exit('Unable to get login info: %s' % str(e))
 
         # login
         try:
-            worker.login(info)
-        except Exception as e:
+            worker.login(username, password)
+        except BaseException as e:
             exit('Login failed: %s' % str(e))
 
         if path.isfile(args[0]):
@@ -138,14 +155,14 @@ def main():
             debug('\nUnrestricting %s' % link)
 
             try:
-                unrestricted = worker.unrestrict(link, password)
+                unrestricted = worker.unrestrict(link, download_password)
                 debug(u'→ ' + unrestricted + '\n')
 
                 if list:
                     print unrestricted
                 elif not test:
                     filename = worker.get_filename_from_url(unrestricted)
-                    fullpath = path.join(dir, filename)
+                    fullpath = path.join(output_dir, filename)
 
                     try:
                         to_mb = lambda b: b / 1048576.
@@ -208,5 +225,3 @@ if __name__ == '__main__':
         main()
     except KeyboardInterrupt:
         exit('^C caught, exiting...')
-    except Exception as e:
-        exit('Fatal error: %s' % str(e))
