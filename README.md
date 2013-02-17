@@ -29,7 +29,7 @@ mitch@raspberrypi ~ $ rdcli [OPTIONS] LINK
 -l    List. Write a list of the successfully unrestricted links on STDOUT, without downloading.
       -t and -q options have no effect if -l is used.
 -o    Output directory. Download files into a specific directory.
--p    Password. Provide a password.
+-p    Password. Provide a password for protected downloads.
 -h    Help. Display this help.
 ```
 

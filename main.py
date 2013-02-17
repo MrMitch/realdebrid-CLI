@@ -25,7 +25,7 @@ def usage(status=0):
     print '  -l\tList. Write a list of the successfully unrestricted links on STDOUT, without downloading.'
     print '\t-t and -q options have no effect if -l is used.'
     print '  -o\tOutput directory. Download files into a specific directory.'
-    print '  -p\tPassword. Provide a password.'
+    print '  -p\tPassword. Provide a password for protected downloads.'
     print '  -h\tHelp. Display this help.'
 
     print '\nLINK can be set of URLs to files you want to download (i.e. http://host.com/myFile.zip) ' \
