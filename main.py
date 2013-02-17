@@ -40,19 +40,24 @@ def usage(status=0):
     exit(status)
 
 
-def ask_credentials(conf_file):
+def ask_credentials():
     """
-    Ask for user credentials and save them into a file
+    Ask for user credentials
     """
     username = raw_input('What is your RealDebrid username?\n')
     raw_pass = getpass('What is your RealDebrid password '
                        '(won\'t be displayed and won\'t be stored as plain text)?')
     password = md5(raw_pass).hexdigest()
 
-    with open(conf_file, 'wb') as output:
-        dump({'username': username, 'password': password}, output, indent=4)
-
     return username, password
+
+
+def save_credentials(conf_file, username, password):
+    try:
+        with open(conf_file, 'wb') as output:
+            dump({'username': username, 'password': password}, output, indent=4)
+    except BaseException as e:
+        exit('Unable to save login information: %s' % str(e))
 
 
 def main():
@@ -92,7 +97,8 @@ def main():
         if option == '-h':
             usage()
         elif option == '-i':
-            username, password = ask_credentials(conf_file)
+            username, password = ask_credentials()
+            save_credentials(conf_file, username, password)
         elif option == '-q':
             if not list:
                 verbose = False
@@ -132,10 +138,8 @@ def main():
                 username = obj['username']
                 password = obj['password']
         except BaseException:
-            try:
-                username, password = ask_credentials(conf_file)
-            except BaseException as e:
-                exit('Unable to get login info: %s' % str(e))
+            username, password = ask_credentials()
+            save_credentials(conf_file, username, password)
 
         # login
         try:
