@@ -125,7 +125,7 @@ def main():
             debug('%s no such directory' % unicode(output_dir))
             exit(1)
         else:
-            if not access(unicode(output_dir), W_OK | X_OK):
+            if not access(output_dir, W_OK | X_OK):
                 debug('Output directory not writable')
                 exit(1)
             else:
