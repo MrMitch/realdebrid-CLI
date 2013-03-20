@@ -104,7 +104,7 @@ class RDWorker:
         opener.close()
 
         if resp['error'] == 0:
-            return resp['main_link']
+            return resp['main_link'].encode('latin-1').decode('utf-8')
         else:
             raise UnrestrictionError(resp['message'].encode('utf-8'), resp['error'])
 
@@ -117,4 +117,4 @@ class RDWorker:
         parser = HTMLParser()
         filename = urlparse(original).path.split('/')[-1]
         filename = parser.unescape(unquote(filename))
-        return filename.encode('latin-1').decode('utf-8').replace('/', '_')
+        return filename.replace('/', '_')
