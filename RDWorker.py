@@ -6,6 +6,7 @@ from HTMLParser import HTMLParser
 from json import load
 from urllib import unquote, urlencode
 from urllib2 import build_opener, HTTPCookieProcessor
+from urlparse import urlparse
 from os import path
 
 
@@ -114,5 +115,6 @@ class RDWorker:
         :return:
         """
         parser = HTMLParser()
-        filename = parser.unescape(unquote(path.basename(original)))
+        filename = urlparse(original).path.split('/')[-1]
+        filename = parser.unescape(unquote(filename))
         return filename.encode('latin-1').decode('utf-8').replace('/', '_')
