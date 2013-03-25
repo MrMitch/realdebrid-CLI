@@ -19,19 +19,20 @@ def usage(status=0):
     print 'Usage: rdcli [OPTIONS] LINK'
 
     print '\nOPTIONS:'
-    print '  -q\tQuiet mode. No output will be generated.'
-    print '  -T\tTimeout. The number maximum of seconds to wait for a download to start.'
-    print '  -t\tTest mode. Perform all operations EXCEPT file downloading.'
+    print '  -h\tHelp. Display this help.'
     print '  -i\tInit. Force rdcli to ask for your login and password.'
     print '\tUseful if you made a typo or if you changed your login information since you first used rdcli.'
     print '  -l\tList. Write a list of the successfully unrestricted links on STDOUT, without downloading.'
     print '\t-t and -q options have no effect if -l is used.'
     print '  -o\tOutput directory. Download files into a specific directory.'
     print '  -p\tPassword. Provide a password for protected downloads.'
-    print '  -h\tHelp. Display this help.'
+    print '  -q\tQuiet mode. No output will be generated.'
+    print '  -t\tTest mode. Perform all operations EXCEPT file downloading.'
+    print '  -T\tTimeout. The maximum number of seconds to wait for a download to start.'
 
     print '\nLINK can be set of URLs to files you want to download (i.e. http://host.com/myFile.zip) ' \
           'or the path to a file containing them.'
+
     print '\nExample: rdcli http://host.com/myFile.zip'
     print 'Example: rdcli urls.txt'
     print 'Example: rdcli -t links-to-test.txt'

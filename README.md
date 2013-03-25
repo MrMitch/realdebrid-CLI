@@ -22,15 +22,16 @@ mitch@raspberrypi ~ $ rdcli [OPTIONS] LINK
 
 `OPTIONS` can be: 
 ```
--q    Quiet mode. No output will be generated.
--t    Test mode. Perform all operations EXCEPT file downloading.
+-h    Help. Display this help.
 -i    Init. Force rdcli to ask for your login and password.
       Useful if you made a typo or if you changed your login information since you first used rdcli.
 -l    List. Write a list of the successfully unrestricted links on STDOUT, without downloading.
       -t and -q options have no effect if -l is used.
 -o    Output directory. Download files into a specific directory.
 -p    Password. Provide a password for protected downloads.
--h    Help. Display this help.
+-q    Quiet mode. No output will be generated.
+-t    Test mode. Perform all operations EXCEPT file downloading.
+-T    Timeout. The maximum number of seconds to wait for a download to start.'
 ```
 
 `LINK` can be set of URLs to files you want to download (i.e. http://host.com/myFile.zip) or the path to a file containing them.
