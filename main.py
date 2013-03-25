@@ -20,6 +20,7 @@ def usage(status=0):
 
     print '\nOPTIONS:'
     print '  -q\tQuiet mode. No output will be generated.'
+    print '  -T\tTimeout. The number maximum of seconds to wait for a download to start.'
     print '  -t\tTest mode. Perform all operations EXCEPT file downloading.'
     print '  -i\tInit. Force rdcli to ask for your login and password.'
     print '\tUseful if you made a typo or if you changed your login information since you first used rdcli.'
@@ -72,6 +73,7 @@ def main():
     list = False
     test = False
     verbose = True
+    timeout = 30
 
     download_password = ''
     output_dir = getcwd()
@@ -88,7 +90,7 @@ def main():
 
     # parse command-line arguments
     try:
-        opts, args = gnu_getopt(argv[1:], 'hiqtlp:o:')
+        opts, args = gnu_getopt(argv[1:], 'hiqtlp:o:T:')
     except GetoptError as e:
         print str(e)
         usage(1)
@@ -113,6 +115,8 @@ def main():
             output_dir = path.abspath(path.expanduser(argument))
         elif option == '-p':
             download_password = argument
+        elif option == '-T':
+            timeout = int(argument)
 
     # stop now if no download and no output wanted
     if test and not verbose:
@@ -171,7 +175,7 @@ def main():
                     try:
                         to_mb = lambda b: b / 1048576.
                         opener = build_opener(HTTPCookieProcessor(worker.cookies))
-                        stream = opener.open(unrestricted)
+                        stream = opener.open(unrestricted, timeout=timeout)
                         info = stream.info().getheaders('Content-Length')
 
                         total_size = 0
