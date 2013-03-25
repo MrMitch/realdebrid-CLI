@@ -166,7 +166,7 @@ def main():
 
             try:
                 unrestricted = worker.unrestrict(link, download_password)
-                debug('→ ' + unrestricted + '\n')
+                debug(u'→ ' + unrestricted + '\n')
 
                 if list:
                     print unrestricted
