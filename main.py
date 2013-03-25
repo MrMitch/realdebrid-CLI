@@ -112,7 +112,7 @@ def main():
             test = False
             verbose = False
         elif option == '-o':
-            output_dir = path.abspath(path.expanduser(argument))
+            output_dir = argument
         elif option == '-p':
             download_password = argument
         elif option == '-T':
@@ -124,6 +124,7 @@ def main():
 
     # make sure we have something to process
     if len(args) > 0:
+        output_dir = path.abspath(path.expanduser(output_dir))
         # ensure we can write in output directory
         if not output_dir == getcwd() and not path.exists(unicode(output_dir)):
             debug('%s no such directory' % unicode(output_dir))
