@@ -165,13 +165,12 @@ def main():
             debug('\nUnrestricting %s' % link)
 
             try:
-                unrestricted = worker.unrestrict(link, download_password)
+                unrestricted, filename = worker.unrestrict(link, download_password)
                 debug(u'→ ' + unrestricted + '\n')
 
                 if list:
                     print unrestricted
                 elif not test:
-                    filename = worker.get_filename_from_url(unrestricted)
                     fullpath = path.join(output_dir, filename)
 
                     try:

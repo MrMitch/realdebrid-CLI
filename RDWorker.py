@@ -104,17 +104,7 @@ class RDWorker:
         opener.close()
 
         if resp['error'] == 0:
-            return resp['main_link'].encode('latin-1').decode('utf-8')
+            info = resp['generated_links'][0]
+            return info[2], info[0].replace('/', '_')
         else:
             raise UnrestrictionError(resp['message'].encode('utf-8'), resp['error'])
-
-    def get_filename_from_url(self, original):
-        """
-        Extract and decode a filename from an unrestricted url
-        :param original:
-        :return:
-        """
-        parser = HTMLParser()
-        filename = urlparse(original).path.split('/')[-1]
-        filename = parser.unescape(unquote(filename))
-        return filename.replace('/', '_')
