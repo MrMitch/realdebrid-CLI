@@ -48,7 +48,7 @@ mitch@raspberrypi ~ $ rdcli -t links-to-test.txt
 mitch@raspberrypi ~ $ rdcli -l links.txt > unrestricted-links.txt
 ```
 
-###For developpement purposes
+###For development purposes
 See the [RDWorker](RDWorker.py) file. It defines 4 classes: 
 
 * `RDError`: Base Exception to be inherited for all Exception related to RealDebrid 

@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-_author__ = 'MrMitch'
 
 from cookielib import MozillaCookieJar
-from HTMLParser import HTMLParser
 from json import load
-from urllib import unquote, urlencode
+from urllib import urlencode
 from urllib2 import build_opener, HTTPCookieProcessor
-from urlparse import urlparse
 from os import path
 
 
@@ -65,7 +62,7 @@ class RDWorker:
 
     def login(self, username, password):
         """
-        Log into Real-Debrid
+        Log into Real-Debrid. password must be a MD5-encrypted string.
         :param username:
         :param password:
         :return: :raise:
@@ -93,7 +90,7 @@ class RDWorker:
 
     def unrestrict(self, link, password=''):
         """
-        Unrestrict a download URL
+        Unrestrict a download URL. Returns tuple of the unrestricted URL and the filename.
         :param link:
         :param password:
         :return: :raise:
