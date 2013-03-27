@@ -16,6 +16,7 @@ sudo sh -c "git clone https://github.com/MrMitch/realdebrid-CLI.git /usr/local/b
 
 ##Usage
 
+###In the command line
 ```bash
 mitch@raspberrypi ~ $ rdcli [OPTIONS] LINK
 ```
@@ -36,7 +37,7 @@ mitch@raspberrypi ~ $ rdcli [OPTIONS] LINK
 
 `LINK` can be set of URLs to files you want to download (i.e. http://host.com/myFile.zip) or the path to a file containing them.
 
-###Examples:  
+**Examples:**  
 
 ```bash
 mitch@raspberrypi ~ $ rdcli http://host.com/myFile.zip
@@ -46,6 +47,18 @@ mitch@raspberrypi ~ $ rdcli urls.txt
 mitch@raspberrypi ~ $ rdcli -t links-to-test.txt
 mitch@raspberrypi ~ $ rdcli -l links.txt > unrestricted-links.txt
 ```
+
+###For developpement purposes
+See the [RDWorker](RDWorker.py) file. It defines 4 classes: 
+
+* `RDError`: Base Exception to be inherited for all Exception related to RealDebrid 
+* `UnrestrictionError`: Exception thrown when an error occurs during link unrestriction
+* `LoginError`: Exception thrown when an error occurs on loging
+* `RDWorker`: Worker class providing methods to
+    * login into RealDebrid, establishing a cookie and keeping it until it's expired
+    * unrestrict any supported link
+
+
 
 ##License
 
