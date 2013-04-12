@@ -32,7 +32,6 @@ mitch@raspberrypi ~ $ rdcli [OPTIONS] LINK
 -p    Password. Provide a password for protected downloads.
 -q    Quiet mode. No output will be generated.
 -t    Test mode. Perform all operations EXCEPT file downloading.
--T    Timeout. The maximum number of seconds to wait for a download to start.'
 ```
 
 `LINK` can be set of URLs to files you want to download (i.e. http://host.com/myFile.zip) or the path to a file containing them.

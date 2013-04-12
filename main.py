@@ -28,7 +28,7 @@ def usage(status=0):
     print '  -p\tPassword. Provide a password for protected downloads.'
     print '  -q\tQuiet mode. No output will be generated.'
     print '  -t\tTest mode. Perform all operations EXCEPT file downloading.'
-    print '  -T\tTimeout. The maximum number of seconds to wait for a download to start.'
+    # print '  -T\tTimeout. The maximum number of seconds to wait for a download to start.'
 
     print '\nLINK can be set of URLs to files you want to download (i.e. http://host.com/myFile.zip) ' \
           'or the path to a file containing them.'
