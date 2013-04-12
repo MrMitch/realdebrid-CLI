@@ -74,7 +74,7 @@ def main():
     list = False
     test = False
     verbose = True
-    timeout = 30
+    timeout = 120
 
     download_password = ''
     output_dir = getcwd()
@@ -176,7 +176,7 @@ def main():
                     try:
                         to_mb = lambda b: b / 1048576.
                         opener = build_opener(HTTPCookieProcessor(worker.cookies))
-                        stream = opener.open(unrestricted, timeout=timeout)
+                        stream = opener.open(unrestricted)
                         info = stream.info().getheaders('Content-Length')
 
                         total_size = 0
