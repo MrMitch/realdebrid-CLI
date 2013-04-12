@@ -24,6 +24,7 @@ class RDError(Exception):
 
 class UnrestrictionError(RDError):
 
+    DEDICATED_SERVER = 3
     UNSUPPORTED = 4
     UPGRADE_NEEDED = 2
     NO_SERVER = 9
@@ -35,7 +36,7 @@ class UnrestrictionError(RDError):
         Get the set of errors that are not fatal
         :return:
         """
-        return cls.UPGRADE_NEEDED, cls.NO_SERVER
+        return cls.UPGRADE_NEEDED, cls.NO_SERVER, cls.DEDICATED_SERVER
 
 
 class LoginError(RDError):
