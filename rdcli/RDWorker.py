@@ -23,6 +23,9 @@ class RDError(Exception):
 
 
 class UnrestrictionError(RDError):
+    """
+    Exception class representing errors that occur when trying to unrestrict a link
+    """
 
     DEDICATED_SERVER = 3
     UNSUPPORTED = 4
@@ -40,7 +43,9 @@ class UnrestrictionError(RDError):
 
 
 class LoginError(RDError):
-
+    """
+        Exception class representing errors that occur when trying to log into Real-Debrid
+    """
     MISSING_INFO = -1
     BAD_CREDENTIALS = 1
     TOO_MANY_ATTEMPTS = 3
@@ -61,11 +66,11 @@ class RDWorker:
         self._cookie_file = cookie_file
         self.cookies = MozillaCookieJar(self._cookie_file)
 
-    def login(self, username, password):
+    def login(self, username, password_hash):
         """
-        Log into Real-Debrid. password must be a MD5-encrypted string.
+        Log into Real-Debrid. password_hash must be a MD5-hash of the password string.
         :param username:
-        :param password:
+        :param password_hash:
         :return: :raise:
         """
         if path.isfile(self._cookie_file):
@@ -78,7 +83,7 @@ class RDWorker:
         # request a new cookie if no valid cookie is found or if it's expired
         opener = build_opener(HTTPCookieProcessor(self.cookies))
         try:
-            response = opener.open(self._endpoint % 'login.php?%s' % urlencode({'user': username, 'pass': password}))
+            response = opener.open(self._endpoint % 'login.php?%s' % urlencode({'user': username, 'pass': password_hash}))
             resp = load(response)
             opener.close()
 
@@ -92,8 +97,8 @@ class RDWorker:
     def unrestrict(self, link, password=''):
         """
         Unrestrict a download URL. Returns tuple of the unrestricted URL and the filename.
-        :param link:
-        :param password:
+        :param link: url to unrestrict
+        :param password: password to use for the unrestriction
         :return: :raise:
         """
         opener = build_opener(HTTPCookieProcessor(self.cookies))

@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+    Command line utility named `rdcli`
+"""
+
 from datetime import datetime
 from getopt import GetoptError, gnu_getopt
 from getpass import getpass
@@ -54,10 +58,13 @@ def ask_credentials():
     return username, password
 
 
-def save_credentials(conf_file, username, password):
+def save_credentials(conf_file, username, password_hash):
+    """
+    Save the credentials to a file on disk
+    """
     try:
         with open(conf_file, 'wb') as output:
-            dump({'username': username, 'password': password}, output, indent=4)
+            dump({'username': username, 'password': password_hash}, output, indent=4)
     except BaseException as e:
         exit('Unable to save login information: %s' % str(e))
 
