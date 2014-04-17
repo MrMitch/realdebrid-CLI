@@ -59,7 +59,7 @@ mitch@raspberrypi ~ $ rdcli -l links.txt > unrestricted-links.txt
 ```
 
 ###For development purposes
-See the [RDWorker](RDWorker.py) file. It defines 4 classes: 
+See the [RDWorker](rdcli/RDWorker.py) file. It defines 4 classes: 
 
 * `RDError`: Base Exception to be inherited for all Exception related to RealDebrid 
 * `UnrestrictionError`: Exception thrown when an error occurs during link unrestriction
