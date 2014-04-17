@@ -40,7 +40,6 @@ mitch@raspberrypi ~ $ rdcli [OPTIONS] LINK
 
 ```bash
 mitch@raspberrypi ~ $ rdcli http://host.com/myFile.zip
-mitch@raspberrypi ~ $ rdcli -T 10 http://host.com/myFile.zip
 mitch@raspberrypi ~ $ rdcli -o Documents/ http://host.com/myFile.zip
 mitch@raspberrypi ~ $ rdcli urls.txt
 mitch@raspberrypi ~ $ rdcli -t links-to-test.txt
