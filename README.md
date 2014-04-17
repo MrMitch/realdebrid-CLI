@@ -1,17 +1,29 @@
-#realdebrid-CLI
+#[realdebrid-CLI](https://github.com/MrMitch/realdebrid-CLI)
 
 > Use Read-Debrid from your command line !
 
 `rdcli` is a tool allowing you to use RealDebrid from your command line.
-It's written in Python ([2.7.3](http://docs.python.org/2/)) because Python comes pre-installed on most distribution nowadays, limiting the amount of software dependency.
+It's written in ([Python 2.7](http://docs.python.org/2/)) because Python comes pre-installed on most distribution nowadays, limiting the amount of software dependency.
 
 ##Installation
 
-To install the last version of `rdcli` on your computer, open a terminal and the paste following line:
+###Using `pip` (prefered method)
+To install the latest version of `rdcli` on your computer, open a terminal and enter the following line:
 ```bash
-sudo sh -c "git clone https://github.com/MrMitch/realdebrid-CLI.git /usr/local/bin/realdebrid-CLI \
-&& chmod 0755 /usr/local/bin/realdebrid-CLI/*.py \
-&& ln -s /usr/local/bin/realdebrid-CLI/main.py /usr/local/bin/rdcli"
+sudo pip install rdcli
+```
+
+To update `rdcli`, run :
+```bash
+sudo pip install rdcli -U
+```
+
+###Aternative method
+If you don't have/want `pip` installed on your computer, you can manually install `rdcli` with the following commands (cloning the repo and launching the `setup.py`)
+```bash
+git clone https://github.com/MrMitch/realdebrid-CLI.git
+cd realdebrid-CLI
+python setup.py install
 ```
 
 ##Usage
@@ -34,7 +46,7 @@ mitch@raspberrypi ~ $ rdcli [OPTIONS] LINK
 -t    Test mode. Perform all operations EXCEPT file downloading.
 ```
 
-`LINK` can be set of URLs to files you want to download (i.e. http://host.com/myFile.zip) or the path to a file containing them.
+`LINK` can be the URL to a file you want to download (i.e. http://host.com/myFile.zip) or the path to a file containing one ore several URL(s).
 
 **Examples:**  
 

@@ -78,7 +78,7 @@ def main():
     conf_file = path.join(base, 'conf.json')
     cookie_file = path.join(base, 'cookie.txt')
 
-    list = False
+    list_only = False
     test = False
     verbose = True
     timeout = 120
@@ -110,13 +110,13 @@ def main():
             username, password = ask_credentials()
             save_credentials(conf_file, username, password)
         elif option == '-q':
-            if not list:
+            if not list_only:
                 verbose = False
         elif option == '-t':
-            if not list:
+            if not list_only:
                 test = True
         elif option == '-l':
-            list = True
+            list_only = True
             test = False
             verbose = False
         elif option == '-o':
@@ -175,7 +175,7 @@ def main():
                 unrestricted, filename = worker.unrestrict(link, download_password)
                 debug(u'→ ' + unrestricted + '\n')
 
-                if list:
+                if list_only:
                     print unrestricted
                 elif not test:
                     fullpath = path.join(output_dir, filename)
