@@ -98,7 +98,7 @@ def main():
 
     # parse command-line arguments
     try:
-        opts, args = gnu_getopt(argv[1:], 'hiqtlp:o:T:')
+        opts, args = gnu_getopt(argv[1:], 'hiqtlp:o:T:O:')
     except GetoptError as e:
         print str(e)
         usage(1)
@@ -125,6 +125,8 @@ def main():
             download_password = argument
         elif option == '-T':
             timeout = int(argument)
+        elif option == '-O':
+            filename = argument
 
     # stop now if no download and no output wanted
     if test and not verbose:
@@ -172,13 +174,20 @@ def main():
             debug('\nUnrestricting %s' % link)
 
             try:
-                unrestricted, filename = worker.unrestrict(link, download_password)
+                unrestricted, original_filename = worker.unrestrict(link, download_password)
                 debug(u'→ ' + unrestricted + '\n')
 
                 if list_only:
                     print unrestricted
                 elif not test:
-                    fullpath = path.join(output_dir, filename)
+
+                    if len(links) == 1:
+                        try:
+                            fullpath = path.join(output_dir, filename)
+                        except NameError:
+                            fullpath = path.join(output_dir, original_filename)
+                    else:
+                        fullpath = path.join(output_dir, original_filename)
 
                     try:
                         to_mb = lambda b: b / 1048576.
