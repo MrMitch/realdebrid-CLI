@@ -29,13 +29,15 @@ def usage(status=0):
     print '  -l\tList. Write a list of the successfully unrestricted links on STDOUT, without downloading.'
     print '\t-t and -q options have no effect if -l is used.'
     print '  -o\tOutput directory. Download files into a specific directory.'
+    print '  -O\tOutput file. Specify a name for the downloaded file instead of using the original file\'s name.'
+    print '\t-O has no effect if several files will be downloaded.'
     print '  -p\tPassword. Provide a password for protected downloads.'
     print '  -q\tQuiet mode. No output will be generated.'
     print '  -t\tTest mode. Perform all operations EXCEPT file downloading.'
     # print '  -T\tTimeout. The maximum number of seconds to wait for a download to start.'
 
-    print '\nLINK can be set of URLs to files you want to download (i.e. http://host.com/myFile.zip) ' \
-          'or the path to a file containing them.'
+    print '\n`LINK` can be the URL to a file you want to download (i.e. http://host.com/myFile.zip) or the path to a ' \
+          'file containing one ore several URL(s).'
 
     print '\nExample: rdcli http://host.com/myFile.zip'
     print 'Example: rdcli urls.txt'
