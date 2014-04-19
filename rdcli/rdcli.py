@@ -11,7 +11,7 @@ from getpass import getpass
 from hashlib import md5
 from json import dump, load
 from os import path, makedirs, getcwd, access, W_OK, X_OK
-from sys import argv
+from sys import argv, stdout
 from RDWorker import RDWorker, UnrestrictionError
 from urllib2 import HTTPCookieProcessor, build_opener
 
@@ -182,11 +182,15 @@ def main():
 
                     try:
                         to_mb = lambda b: b / 1048576.
+                        to_kb = lambda b: b / 1024.
+
                         opener = build_opener(HTTPCookieProcessor(worker.cookies))
                         stream = opener.open(unrestricted)
                         info = stream.info().getheaders('Content-Length')
 
                         total_size = 0
+                        downloaded_size = 0
+
                         if len(info):
                             total_size = float(info[0])
                             start = 'Downloading: %s (%.2f MB)\n' % (fullpath, to_mb(total_size))
@@ -195,15 +199,16 @@ def main():
 
                         debug(start)
 
-                        downloaded_size = 0
-                        percentage = ''
                         with open(fullpath, 'wb') as output:
                             start = datetime.now()
-                            while True:
+                            end = datetime.now()
 
+                            if verbose:
+                                status = ''
+
+                            while True:
                                 try:
-                                    content = stream.read(10240)  # 10 KB
-                                    end = datetime.now()
+                                    content = stream.read(20480)  # 20 KB
 
                                     if not content:
                                         break
@@ -211,20 +216,43 @@ def main():
                                     output.write(content)
                                     downloaded_size += len(content)
 
-                                    if total_size:
-                                        percentage = ' [%3.2f%%]' % (downloaded_size * 100. / total_size)
+                                    if verbose:
+                                        padding_length = len(status)
+                                        last_downloaded = len(content)
 
-                                    status = '\r%.3f MB%s' % (to_mb(downloaded_size), percentage)
-                                    debug(status)
+                                        if last_downloaded > 1024:
+                                            speed = to_mb(last_downloaded) / (datetime.now() - end).total_seconds()
+                                            unit = 'MB/s'
+                                        else:
+                                            speed = to_kb(last_downloaded) / (datetime.now() - end).total_seconds()
+                                            unit = 'kB/s'
+
+                                        status = '\r%.3f MB' % to_mb(downloaded_size)
+
+                                        if total_size > 0:
+                                            status += '  [%3.2f%%]' % (downloaded_size * 100. / total_size)
+
+                                        status += '  @ %.2f %s' % (speed, unit)
+
+                                        print status.ljust(padding_length),
+                                        end = datetime.now()
+
                                 except KeyboardInterrupt:
                                     break
 
+                            output.flush()
                             stream.close()
 
                         speed = to_mb(downloaded_size) / (end - start).total_seconds()
-                        debug('\r%.2f MB%s downloaded in %s (≈ %.2f MB/s)\n'
-                              % (to_mb(downloaded_size), percentage, str(end - start).split('.')[0], speed))
 
+                        if total_size > 0:
+                            final_status = '%.2f MB [%.2f%%] downloaded in %s (≈ %.2f MB/s)' \
+                                           % (to_mb(downloaded_size), (downloaded_size * 100. / total_size),
+                                              str(end - start).split('.')[0], speed)
+                        else:
+                            final_status = '%.2f MB downloaded in %s (≈ %.2f MB/s)' \
+                                           % (to_mb(downloaded_size), str(end - start).split('.')[0], speed)
+                        debug('\r%s\n' % final_status)
                     except BaseException as e:
                         debug('\nDownload failed: %s\n' % e)
             except UnrestrictionError as e:
