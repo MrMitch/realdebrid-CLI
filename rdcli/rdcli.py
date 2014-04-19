@@ -11,7 +11,7 @@ from getpass import getpass
 from hashlib import md5
 from json import dump, load
 from os import path, makedirs, getcwd, access, W_OK, X_OK
-from sys import argv, stdout
+from sys import argv
 from RDWorker import RDWorker, UnrestrictionError
 from urllib2 import HTTPCookieProcessor, build_opener
 
