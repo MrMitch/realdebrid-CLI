@@ -3,3 +3,5 @@ login
 .idea
 *.dl
 *.pyc
+dist
+*.egg-info
