@@ -90,7 +90,7 @@ def main():
 
     def debug(s):
         if verbose:
-            print s.decode('utf-8'),
+            print s,
 
     # make sure the config dir exists
     if not path.exists(base):
@@ -177,7 +177,7 @@ def main():
 
             try:
                 unrestricted, original_filename = worker.unrestrict(link, download_password)
-                debug(u'→ ' + unrestricted + '\n')
+                debug(u' -> ' + unrestricted + '\n')
 
                 if list_only:
                     print unrestricted
@@ -257,17 +257,17 @@ def main():
                         speed = to_mb(downloaded_size) / (end - start).total_seconds()
 
                         if total_size > 0:
-                            final_status = '%.2f MB [%.2f%%] downloaded in %s (≈ %.2f MB/s)' \
+                            final_status = '%.2f MB [%.2f%%] downloaded in %s (%.2f MB/s avg.)' \
                                            % (to_mb(downloaded_size), (downloaded_size * 100. / total_size),
                                               str(end - start).split('.')[0], speed)
                         else:
-                            final_status = '%.2f MB downloaded in %s (≈ %.2f MB/s)' \
+                            final_status = '%.2f MB downloaded in %s (%.2f MB/s avg.)' \
                                            % (to_mb(downloaded_size), str(end - start).split('.')[0], speed)
                         debug('\r%s\n' % final_status)
                     except BaseException as e:
                         debug('\nDownload failed: %s\n' % e)
             except UnrestrictionError as e:
-                debug('→ WARNING, unrestriction failed (%s)' % str(e) + '\n')
+                debug('-> WARNING, unrestriction failed (%s)' % str(e) + '\n')
 
         debug('End\n')
         return 0
