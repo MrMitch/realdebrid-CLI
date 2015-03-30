@@ -11,4 +11,4 @@ from RDWorker import RDWorker, RDError, UnrestrictionError, LoginError
 __all__ = ['RDWorker', 'RDError', 'UnrestrictionError', 'LoginError']
 
 __author__ = 'MrMitch'
-__version__ = 0.7.1
+__version__ = '0.7.1'
