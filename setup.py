@@ -12,7 +12,7 @@ setup(
     author=rdcli.__author__,
     author_email='contact@mickael-goetz.com',
     description='Use Read-Debrid from your command line !',
-    long_description=open('README.md').read(),
+    long_description=open('README.rst').read(),
     include_package_data=True,
     url='https://github.com/MrMitch/realdebrid-CLI',
     classifiers=[

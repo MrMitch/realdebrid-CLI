@@ -90,7 +90,7 @@ def main():
 
     def debug(s):
         if verbose:
-            print s,
+            print s.decode('utf-8'),
 
     # make sure the config dir exists
     if not path.exists(base):
