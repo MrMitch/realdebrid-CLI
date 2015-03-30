@@ -106,10 +106,23 @@ Contributing
 ------------
 
 This script was initially written for my personal use but I’d be more
-than happy if it could be u
+than happy if it could be useful to any folk from the magical land of
+the Internet. Feel free to fork and submit your Pull Request to
+fix/improve ``rdcli``.
+
+Report ``rdcli`` bugs
+`here <https://github.com/MrMitch/realdebrid-CLI/issues/new>`__
+
+Contributors
+------------
+
+| `MrMitch`_
+| `fklingler`_
 
 .. _realdebrid-CLI: https://github.com/MrMitch/realdebrid-CLI
 .. _Python 2.7: http://docs.python.org/2/
 .. _RDWorker: https://github.com/MrMitch/realdebrid-CLI/blob/master/rdcli/RDWorker.py
 .. _WTF Public License: http://www.wtfpl.net/
 .. _here: http://www.wtfpl.net/txt/copying
+.. _MrMitch: http://github.com/MrMitch
+.. _fklingler: http://github.com/fklingler
