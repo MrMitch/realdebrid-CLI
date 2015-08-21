@@ -99,7 +99,7 @@ See the `RDWorker`_ file. It defines 4 classes:
 License
 -------
 
-This software is distributed under the `MIT License`_. A copy of
+This software is distributed under the MIT License. A copy of
 the license can be found in the `LICENSE.txt`_ file.
 
 Contributing
@@ -122,7 +122,6 @@ Contributors
 .. _realdebrid-CLI: https://github.com/MrMitch/realdebrid-CLI
 .. _Python 2.7: http://docs.python.org/2/
 .. _RDWorker: https://github.com/MrMitch/realdebrid-CLI/blob/master/rdcli/RDWorker.py
-.. _MIT License: http://www.wtfpl.net/
 .. _LICENSE.txt: https://github.com/MrMitch/realdebrid-CLI/blob/master/LICENSE.txt
 .. _MrMitch: http://github.com/MrMitch
 .. _fklingler: http://github.com/fklingler
