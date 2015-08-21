@@ -7,7 +7,6 @@
 
 from datetime import datetime
 import config
-#from config import update_value, ask_credentials, save_credentials
 from getopt import GetoptError, gnu_getopt
 from json import load
 from os import path, makedirs, getcwd, access, W_OK, X_OK
