@@ -3,7 +3,7 @@
 
     Use Read-Debrid from your command line !
 
-``rdcli`` is a tool allowing you to use RealDebrid from your command
+``rdcli`` is a tool allowing you to use Real-Debrid from your command
 line. It’s written in `Python 2.7`_ because Python comes pre-installed
 on most distribution nowadays, limiting the amount of software
 dependency.
@@ -11,8 +11,8 @@ dependency.
 Installation
 ------------
 
-Using ``pip`` (prefered method)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using ``pip`` (preferred method)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To install the latest version of ``rdcli`` on your computer, open a
 terminal and enter the following line:
@@ -27,8 +27,8 @@ To update ``rdcli``, run :
 
     sudo pip install rdcli -U
 
-Aternative method
-~~~~~~~~~~~~~~~~~
+Alternative method
+~~~~~~~~~~~~~~~~~~
 
 If you don’t have/want ``pip`` installed on your computer, you can
 manually install ``rdcli`` with the following commands (cloning the repo
@@ -86,13 +86,13 @@ For development purposes
 See the `RDWorker`_ file. It defines 4 classes:
 
 -  ``RDError``: Base Exception to be inherited for all Exception related
-   to RealDebrid
+   to Real-Debrid
 -  ``UnrestrictionError``: Exception thrown when an error occurs during
    link unrestriction
 -  ``LoginError``: Exception thrown when an error occurs on loging
 -  ``RDWorker``: Worker class providing methods to
 
-   -  login into RealDebrid, establishing a cookie and keeping it until
+   -  login into Real-Debrid, establishing a cookie and keeping it until
       it’s expired
    -  unrestrict any supported link
 
@@ -110,8 +110,8 @@ than happy if it could be useful to any folk from the magical land of
 the Internet. Feel free to fork and submit your Pull Request to
 fix/improve ``rdcli``.
 
-Report ``rdcli`` bugs
-`here <https://github.com/MrMitch/realdebrid-CLI/issues/new>`__
+Report ``rdcli`` bugs on
+`github <https://github.com/MrMitch/realdebrid-CLI/issues/new>`__
 
 Contributors
 ------------

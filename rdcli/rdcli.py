@@ -52,8 +52,8 @@ def ask_credentials():
     """
     Ask for user credentials
     """
-    username = raw_input('What is your RealDebrid username?\n')
-    raw_pass = getpass('What is your RealDebrid password '
+    username = raw_input('What is your Real-Debrid username?\n')
+    raw_pass = getpass('What is your Real-Debrid password '
                        '(won\'t be displayed and won\'t be stored as plain text)?')
     password = md5(raw_pass).hexdigest()
 

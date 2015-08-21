@@ -53,8 +53,8 @@ class LoginError(RDError):
 
 class RDWorker:
     """
-    Worker class to perform RealDebrid related actions:
-    - format login info so they can be used by RealDebrid
+    Worker class to perform Real-Debrid related actions:
+    - format login info so they can be used by Real-Debrid
     - login
     - unrestricting links
     - keeping cookies
