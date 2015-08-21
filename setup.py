@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
- 
+
 from setuptools import setup, find_packages
 
 import rdcli
@@ -24,10 +24,10 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Topic :: Internet',
     ],
-    entry_points = {
+    entry_points={
         'console_scripts': [
             'rdcli = rdcli.rdcli:main',
         ],
     },
-    license="WTFPL"
+    license="MIT"
 )
