@@ -6,21 +6,22 @@
 """
 
 from datetime import datetime
+import config
+#from config import update_value, ask_credentials, save_credentials
 from getopt import GetoptError, gnu_getopt
-from getpass import getpass
-from hashlib import md5
-from json import dump, load
+from json import load
 from os import path, makedirs, getcwd, access, W_OK, X_OK
 from sys import argv
 from RDWorker import RDWorker, UnrestrictionError
 from urllib2 import HTTPCookieProcessor, build_opener
 
 
-def usage(status=0):
+def print_help():
     """
     Print rdcli usage information
     """
     print 'Usage: rdcli [OPTIONS] LINK'
+    print '       rdcli --config OPTION_NAME NEW_VALUE'
 
     print '\nOPTIONS:'
     print '  -h\tHelp. Display this help.'
@@ -45,31 +46,6 @@ def usage(status=0):
 
     print '\nReport rdcli bugs to https://github.com/MrMitch/realdebrid-CLI/issues/new'
 
-    exit(status)
-
-
-def ask_credentials():
-    """
-    Ask for user credentials
-    """
-    username = raw_input('What is your Real-Debrid username?\n')
-    raw_pass = getpass('What is your Real-Debrid password '
-                       '(won\'t be displayed and won\'t be stored as plain text)?')
-    password = md5(raw_pass).hexdigest()
-
-    return username, password
-
-
-def save_credentials(conf_file, username, password_hash):
-    """
-    Save the credentials to a file on disk
-    """
-    try:
-        with open(conf_file, 'wb') as output:
-            dump({'username': username, 'password': password_hash}, output, indent=4)
-    except BaseException as e:
-        exit('Unable to save login information: %s' % str(e))
-
 
 def main():
     """
@@ -85,32 +61,60 @@ def main():
     verbose = True
     timeout = 120
 
-    download_password = ''
-    output_dir = getcwd()
-
-    def debug(s):
-        if verbose:
+    if verbose:
+        def debug(s):
             print s,
+    else:
+        def debug(s):
+            pass
 
     # make sure the config dir exists
     if not path.exists(base):
         makedirs(base)
 
+    try:
+        with open(conf_file, 'r') as conf:
+            configuration = load(conf)
+    except (IOError, ValueError):
+        configuration = {}
+
+    # the default output dir is taken from the config file
+    # if it hasn't been configured, then use the current directory
+    output_dir = configuration.get('output_dir', getcwd())
+    download_password = ''
+
     worker = RDWorker(cookie_file)
 
     # parse command-line arguments
     try:
-        opts, args = gnu_getopt(argv[1:], 'hiqtlp:o:T:O:')
+        opts, args = gnu_getopt(argv[1:], 'hiqtlp:o:T:O:', ['config'])
     except GetoptError as e:
         print str(e)
-        usage(1)
+        print_help()
+        exit(1)
 
     for option, argument in opts:
+        if option == '--config':
+            config_args = argv[2:]
+
+            if len(config_args) == 0:
+                print 'Error: No configuration option supplied'
+                exit(1)
+            if len(config_args) == 1:
+                config_args.append(None)
+
+            if len(config_args) > 2:
+                print 'WARNING: the following values have been ignored:', ', '.join(config_args[2:])
+                config_args = config_args[0:2]
+
+            config.update_value(*config_args, conf_file=conf_file)
+            exit(0)
         if option == '-h':
-            usage()
+            print_help()
+            exit(0)
         elif option == '-i':
-            username, password = ask_credentials()
-            save_credentials(conf_file, username, password)
+            username, password = config.ask_credentials()
+            config.save_credentials(username, password, conf_file)
         elif option == '-q':
             if not list_only:
                 verbose = False
@@ -151,12 +155,12 @@ def main():
         # retrieve login info
         try:
             with open(conf_file, 'r') as conf:
-                obj = load(conf)
-                username = obj['username']
-                password = obj['password']
-        except BaseException:
-            username, password = ask_credentials()
-            save_credentials(conf_file, username, password)
+                configuration = load(conf)
+                username = configuration.get('username', '')
+                password = configuration.get('password', '')
+        except (KeyError, IOError):
+            username, password = config.ask_credentials()
+            config.save_credentials(username, password, conf_file)
 
         # login
         try:
@@ -272,7 +276,8 @@ def main():
         debug('End\n')
         return 0
     else:
-        usage(1)
+        print_help()
+        exit(1)
 
 
 if __name__ == '__main__':
