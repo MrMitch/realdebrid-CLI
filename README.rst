@@ -1,5 +1,5 @@
-`realdebrid-CLI`_
-=================
+`realdebrid-CLI`_ |version|
+===========================
 
     Use Read-Debrid from your command line !
 
@@ -125,3 +125,4 @@ Contributors
 .. _LICENSE.txt: https://github.com/MrMitch/realdebrid-CLI/blob/master/LICENSE.txt
 .. _MrMitch: http://github.com/MrMitch
 .. _fklingler: http://github.com/fklingler
+.. |version| image:: https://img.shields.io/pypi/v/rdcli.png
