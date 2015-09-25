@@ -60,13 +60,6 @@ def main():
     verbose = True
     timeout = 120
 
-    if verbose:
-        def debug(s):
-            print s,
-    else:
-        def debug(s):
-            pass
-
     # make sure the config dir exists
     if not path.exists(base):
         makedirs(base)
@@ -136,6 +129,13 @@ def main():
     # stop now if no download and no output wanted
     if test and not verbose:
         exit(0)
+
+    if verbose:
+        def debug(s):
+            print s,
+    else:
+        def debug(s):
+            pass
 
     # make sure we have something to process
     if len(args) > 0:
