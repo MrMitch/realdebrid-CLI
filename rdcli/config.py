@@ -4,7 +4,7 @@ from getpass import getpass
 from hashlib import md5
 from json import dump, loads
 
-VERSION = '0.8.3'
+VERSION = '0.8.3.1'
 
 
 def ask_credentials():
