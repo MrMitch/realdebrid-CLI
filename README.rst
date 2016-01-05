@@ -53,6 +53,7 @@ In the command line
 ``OPTIONS`` can be:
 
 ::
+
     -v    Version. Show the installed version.
     -h    Help. Display this help.
     -i    Init. Force rdcli to ask for your login and password.
