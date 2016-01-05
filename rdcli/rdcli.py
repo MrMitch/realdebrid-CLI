@@ -30,6 +30,7 @@ def print_help():
     print '       rdcli --config OPTION_NAME NEW_VALUE'
 
     print '\nOPTIONS:'
+    print '  -v\tVersion. Show the installed version.'
     print '  -h\tHelp. Display this help.'
     print '  -i\tInit. Force rdcli to ask for your login and password.'
     print '\tUseful if you made a typo or if you changed your login information since you first used rdcli.'
