@@ -2,7 +2,9 @@
 
 from getpass import getpass
 from hashlib import md5
-from json import dump, load
+from json import dump, loads
+
+VERSION = '0.8.3'
 
 
 def ask_credentials():
@@ -34,15 +36,24 @@ def update_values(new_values, conf_file):
     @param conf_file:
     @return:
     """
-    with open(conf_file, 'r+b') as output:
+
+    # make sure the file exists
+    open(conf_file, 'a').close()
+
+    with open(conf_file, 'r+b') as output_file:
         # load the config
-        config = load(output)
+        json = output_file.read()
+
+        if not json:
+            json = '{}'
+
+        config = loads(json)
         config.update(new_values)
         # rewind to the begining of the file
-        output.seek(0)
+        output_file.seek(0)
         # output the new content, and make sure no extra content is present
-        dump(config, output, indent=4)
-        output.truncate()
+        dump(config, output_file, indent=4)
+        output_file.truncate()
 
 
 def update_value(key, value, conf_file):

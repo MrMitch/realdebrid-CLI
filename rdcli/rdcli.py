@@ -11,14 +11,21 @@ from getopt import GetoptError, gnu_getopt
 from json import load
 from os import path, makedirs, getcwd, access, W_OK, X_OK
 from sys import argv
+from config import VERSION
 from RDWorker import RDWorker, UnrestrictionError
 from urllib2 import HTTPCookieProcessor, build_opener
+
+
+def print_version():
+    print 'rdcli %s' % VERSION
 
 
 def print_help():
     """
     Print rdcli usage information
     """
+    print_version()
+
     print 'Usage: rdcli [OPTIONS] LINK'
     print '       rdcli --config OPTION_NAME NEW_VALUE'
 
@@ -79,13 +86,19 @@ def main():
 
     # parse command-line arguments
     try:
-        opts, args = gnu_getopt(argv[1:], 'hiqtlp:o:T:O:', ['config'])
+        opts, args = gnu_getopt(argv[1:], 'hviqtlp:o:T:O:', ['config', 'version'])
     except GetoptError as e:
         print str(e)
         print_help()
         exit(1)
 
     for option, argument in opts:
+        if option == '-h':
+            print_help()
+            exit(0)
+        if option == '--version' or option == '-v':
+            print_version()
+            exit(0)
         if option == '--config':
             config_args = argv[2:]
 
@@ -100,9 +113,6 @@ def main():
                 config_args = config_args[0:2]
 
             config.update_value(*config_args, conf_file=conf_file)
-            exit(0)
-        if option == '-h':
-            print_help()
             exit(0)
         elif option == '-i':
             username, password = config.ask_credentials()
@@ -157,7 +167,7 @@ def main():
                 configuration = load(conf)
                 username = configuration.get('username', '')
                 password = configuration.get('password', '')
-        except (KeyError, IOError):
+        except (KeyError, IOError, ValueError):
             username, password = config.ask_credentials()
             config.save_credentials(username, password, conf_file)
 

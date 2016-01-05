@@ -4,10 +4,11 @@
 from setuptools import setup, find_packages
 
 import rdcli
+from rdcli.config import VERSION
 
 setup(
     name='rdcli',
-    version=rdcli.__version__,
+    version=VERSION,
     packages=find_packages(),
     author=rdcli.__author__,
     author_email='contact@mickael-goetz.com',
